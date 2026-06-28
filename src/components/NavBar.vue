@@ -26,7 +26,7 @@
               任务
             </router-link>
             <router-link to="/ai-assistant" class="nav-link px-3 py-2 rounded-lg" active-class="bg-blue-50 text-primary font-medium">
-              AI 内容助手
+              文案助手
             </router-link>
           </div>
         </div>
