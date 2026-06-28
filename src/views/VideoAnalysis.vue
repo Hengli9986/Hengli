@@ -14,6 +14,9 @@
         <p class="text-gray-500 mt-1">视频表现数据与爆款分析</p>
       </div>
       <div class="flex items-center space-x-3">
+        <button class="btn-secondary text-sm" @click="exportPDF">
+          📄 导出 PDF
+        </button>
         <router-link to="/import" class="btn-secondary text-sm">
           📁 导入数据
         </router-link>
@@ -161,7 +164,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart, BarChart, PieChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components'
 import VChart from 'vue-echarts'
-import { useDataStore } from '../stores/data'
+import { exportVideoReportPDF } from '../lib/export'
 
 use([CanvasRenderer, LineChart, BarChart, PieChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
@@ -192,6 +195,14 @@ function formatNumber(num) {
     return (n / 10000).toFixed(1) + 'w'
   }
   return n.toLocaleString('zh-CN')
+}
+
+function exportPDF() {
+  if (!dataStore.videoStats || dataStore.videos.length === 0) {
+    alert('没有数据可导出')
+    return
+  }
+  exportVideoReportPDF(dataStore.videos, dataStore.videoStats)
 }
 
 // ========== Chart Options ==========

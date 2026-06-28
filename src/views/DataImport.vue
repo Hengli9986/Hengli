@@ -8,9 +8,14 @@
 
     <template v-else>
     <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-2xl font-bold mb-2">数据导入</h1>
-      <p class="text-gray-500">支持 Excel (.xlsx) 和 CSV (.csv) 格式，导入直播或短视频数据</p>
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold mb-2">数据导入</h1>
+        <p class="text-gray-500">支持 Excel (.xlsx) 和 CSV (.csv) 格式，导入直播或短视频数据</p>
+      </div>
+      <button @click="exportAllData" class="btn-secondary text-sm">
+        📥 导出全部数据
+      </button>
     </div>
 
     <!-- Import Type Selection -->
@@ -174,7 +179,7 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import * as XLSX from 'xlsx'
-import { useDataStore } from '../stores/data'
+import { exportAllDataExcel } from '../lib/export'
 
 const router = useRouter()
 const dataStore = useDataStore()
@@ -286,6 +291,15 @@ function confirmImport() {
   setTimeout(() => {
     showSuccess.value = false
   }, 3000)
+}
+
+// ========== Export All Data ==========
+function exportAllData() {
+  if (dataStore.liveSessions.length === 0 && dataStore.videos.length === 0) {
+    alert('没有数据可导出')
+    return
+  }
+  exportAllDataExcel(dataStore.liveSessions, dataStore.videos)
 }
 
 // ========== Template Download ==========

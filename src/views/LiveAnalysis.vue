@@ -14,6 +14,9 @@
         <p class="text-gray-500 mt-1">直播数据总览与趋势分析</p>
       </div>
       <div class="flex items-center space-x-3">
+        <button @click="exportPDF" class="btn-secondary text-sm">
+          📄 导出 PDF
+        </button>
         <router-link to="/import" class="btn-secondary text-sm">
           📁 导入数据
         </router-link>
@@ -132,7 +135,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -140,11 +143,16 @@ import { LineChart, BarChart, ScatterChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components'
 import VChart from 'vue-echarts'
 import { useDataStore } from '../stores/data'
+import { exportLiveReportPDF } from '../lib/export'
 
 use([CanvasRenderer, LineChart, BarChart, ScatterChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
 const router = useRouter()
 const dataStore = useDataStore()
+
+onMounted(() => {
+  dataStore.loadData()
+})
 
 const hasData = computed(() => dataStore.liveSessions.length > 0)
 const stats = computed(() => dataStore.liveStats || {
@@ -154,8 +162,8 @@ const stats = computed(() => dataStore.liveStats || {
 
 const sortedSessions = computed(() => {
   return [...dataStore.liveSessions].sort((a, b) => {
-    const dateA = new Date(a.直播日期 || a.date || 0)
-    const dateB = new Date(b.直播日期 || b.date || 0)
+    const dateA = new Date(a.live_date || 0)
+    const dateB = new Date(b.live_date || 0)
     return dateB - dateA
   })
 })
@@ -170,23 +178,31 @@ function formatNumber(num) {
 }
 
 function goToDetail(session) {
-  router.push(`/live/${session._id}`)
+  router.push(`/live/${session.id}`)
+}
+
+function exportPDF() {
+  if (!dataStore.liveStats || dataStore.liveSessions.length === 0) {
+    alert('没有数据可导出')
+    return
+  }
+  exportLiveReportPDF(dataStore.liveSessions, dataStore.liveStats)
 }
 
 // ========== Chart Options ==========
 const chartData = computed(() => {
   const sessions = [...dataStore.liveSessions].sort((a, b) => {
-    const dateA = new Date(a.直播日期 || a.date || 0)
-    const dateB = new Date(b.直播日期 || b.date || 0)
+    const dateA = new Date(a.live_date || 0)
+    const dateB = new Date(b.live_date || 0)
     return dateA - dateB
   })
   
   return {
-    dates: sessions.map(s => s.直播日期 || s.date || ''),
-    gmv: sessions.map(s => parseFloat(s.直播GMV || s.gmv) || 0),
-    watch: sessions.map(s => parseFloat(s.场均观看 || s.watchCount) || 0),
-    duration: sessions.map(s => parseFloat(s.直播时长 || s.duration) || 0),
-    orders: sessions.map(s => parseFloat(s.成交订单数 || s.orders) || 0)
+    dates: sessions.map(s => s.live_date || ''),
+    gmv: sessions.map(s => parseFloat(s.gmv) || 0),
+    watch: sessions.map(s => parseFloat(s.avg_watch) || 0),
+    duration: sessions.map(s => parseFloat(s.duration_minutes) || 0),
+    orders: sessions.map(s => parseFloat(s.orders) || 0)
   }
 })
 
