@@ -35,8 +35,18 @@ export const useAuthStore = defineStore('auth', () => {
         data: { name }
       }
     })
-    if (error) throw error
+    if (error) {
+      if (error.message?.includes('rate limit') || error.status === 429) {
+        throw new Error('注册过于频繁，请稍后再试，或使用已有账号登录')
+      }
+      throw error
+    }
     user.value = data.user
+    
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      throw new Error('该邮箱已注册，请直接登录')
+    }
+    
     return data.user
   }
 

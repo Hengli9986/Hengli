@@ -81,6 +81,13 @@ export const useDataStore = defineStore('data', () => {
     isLoading.value = true
     error.value = null
 
+    // Guest mode: load from localStorage
+    if (isGuestMode()) {
+      loadGuestData()
+      isLoading.value = false
+      return
+    }
+
     try {
       // Load live sessions
       const { data: liveData, error: liveError } = await supabase
@@ -133,6 +140,13 @@ export const useDataStore = defineStore('data', () => {
     isLoading.value = true
     error.value = null
     currentImportType.value = type
+
+    // Guest mode: save to localStorage only
+    if (isGuestMode()) {
+      saveGuestData(data, type)
+      isLoading.value = false
+      return
+    }
 
     try {
       // Transform data to match schema
@@ -197,6 +211,17 @@ export const useDataStore = defineStore('data', () => {
     const authStore = useAuthStore()
     if (!authStore.user) return
 
+    // Guest mode: clear localStorage
+    if (isGuestMode()) {
+      localStorage.removeItem('guest_live_sessions')
+      localStorage.removeItem('guest_videos')
+      localStorage.removeItem('guest_import_history')
+      liveSessions.value = []
+      videos.value = []
+      importHistory.value = []
+      return
+    }
+
     isLoading.value = true
     try {
       await supabase.from('live_sessions').delete().eq('user_id', authStore.user.id)
@@ -217,6 +242,84 @@ export const useDataStore = defineStore('data', () => {
       return
     }
     importHistory.value = importHistory.value.filter(h => h.id !== id)
+  }
+
+  function isGuestMode() {
+    return localStorage.getItem('guest_mode') === 'true'
+  }
+
+  function loadGuestData() {
+    try {
+      const liveData = JSON.parse(localStorage.getItem('guest_live_sessions') || '[]')
+      const videoData = JSON.parse(localStorage.getItem('guest_videos') || '[]')
+      const historyData = JSON.parse(localStorage.getItem('guest_import_history') || '[]')
+      liveSessions.value = liveData
+      videos.value = videoData
+      importHistory.value = historyData
+    } catch (e) {
+      console.error('Failed to load guest data:', e)
+    }
+  }
+
+  function saveGuestData(data, type) {
+    try {
+      const records = data.map((row, index) => {
+        if (type === 'live') {
+          return {
+            id: 'guest-live-' + Date.now() + '-' + index,
+            user_id: 'guest',
+            live_date: row.直播日期 || row.date || null,
+            duration_minutes: parseInt(row.直播时长 || row.duration) || null,
+            avg_watch: parseInt(row.场均观看 || row.watchCount) || null,
+            gmv: parseFloat(row.直播GMV || row.gmv) || null,
+            orders: parseInt(row.成交订单数 || row.orders) || null,
+            new_fans: parseInt(row.新增粉丝 || row.newFans) || null,
+            interactions: parseInt(row.互动人数 || row.interactions) || null,
+            raw_data: row,
+            created_at: new Date().toISOString()
+          }
+        } else {
+          return {
+            id: 'guest-video-' + Date.now() + '-' + index,
+            user_id: 'guest',
+            title: row.视频标题 || row.title || null,
+            publish_time: row.发布时间 || row.publishTime || null,
+            play_count: parseInt(row.播放量 || row.playCount) || null,
+            like_count: parseInt(row.点赞数 || row.likeCount) || null,
+            comment_count: parseInt(row.评论数 || row.commentCount) || null,
+            share_count: parseInt(row.分享数 || row.shareCount) || null,
+            collect_count: parseInt(row.收藏数 || row.collectCount) || null,
+            completion_rate: parseFloat(row.完播率 || row.completionRate) || null,
+            raw_data: row,
+            created_at: new Date().toISOString()
+          }
+        }
+      })
+
+      if (type === 'live') {
+        const existing = JSON.parse(localStorage.getItem('guest_live_sessions') || '[]')
+        localStorage.setItem('guest_live_sessions', JSON.stringify([...existing, ...records]))
+      } else {
+        const existing = JSON.parse(localStorage.getItem('guest_videos') || '[]')
+        localStorage.setItem('guest_videos', JSON.stringify([...existing, ...records]))
+      }
+
+      // Add import log
+      const history = JSON.parse(localStorage.getItem('guest_import_history') || '[]')
+      history.unshift({
+        id: 'guest-log-' + Date.now(),
+        type: type,
+        count: data.length,
+        timestamp: new Date().toLocaleString('zh-CN')
+      })
+      localStorage.setItem('guest_import_history', JSON.stringify(history.slice(0, 20)))
+
+      // Reload
+      loadGuestData()
+    } catch (e) {
+      console.error('Failed to save guest data:', e)
+      throw new Error('保存数据失败')
+    }
   }
 
   return {

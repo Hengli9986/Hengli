@@ -27,8 +27,12 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
+  // Check for guest mode
+  const isGuest = localStorage.getItem('guest_mode') === 'true'
+  
   const { data: { session } } = await supabase.auth.getSession()
-  const isAuthenticated = !!session
+  const isAuthenticated = !!session || isGuest
+  
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login')
   } else {
