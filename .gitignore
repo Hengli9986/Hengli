@@ -37,3 +37,5 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+scraper/tests/output/
+test-results/
