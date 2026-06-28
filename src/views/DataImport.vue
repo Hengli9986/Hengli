@@ -51,6 +51,27 @@
       </button>
     </div>
 
+    <!-- Playwright Scraper Guide -->
+    <div class="card p-6 mb-6 bg-yellow-50 border-yellow-200">
+      <div class="flex items-start space-x-4">
+        <div class="text-3xl">🤖</div>
+        <div class="flex-1">
+          <h3 class="font-bold text-lg mb-1">自动抓取数据 (Playwright)</h3>
+          <p class="text-sm text-gray-600 mb-2">
+            自动从抖音创作者后台抓取数据，直接上传到 Supabase 或导出 Excel
+          </p>
+          <ol class="text-sm text-gray-500 list-decimal list-inside space-y-1">
+            <li>运行 <code class="bg-gray-100 px-1 rounded font-mono text-xs">python scraper/main.py login</code> 登录抖音</li>
+            <li>运行 <code class="bg-gray-100 px-1 rounded font-mono text-xs">python scraper/main.py scrape-live --upload --user-id {{ auth.user?.id }}</code> 抓取直播数据</li>
+            <li>运行 <code class="bg-gray-100 px-1 rounded font-mono text-xs">python scraper/main.py scrape-video --upload --user-id {{ auth.user?.id }}</code> 抓取视频数据</li>
+          </ol>
+          <p class="text-xs text-gray-400 mt-2">
+            去掉 <code class="bg-gray-100 px-1 rounded">--upload</code> 参数则只导出 Excel 文件到 <code class="bg-gray-100 px-1 rounded">scraper/output/</code>
+          </p>
+        </div>
+      </div>
+    </div>
+
     <!-- File Upload Area -->
     <div 
       v-if="importType"
