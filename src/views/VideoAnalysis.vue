@@ -38,7 +38,7 @@
 
     <div v-else>
       <!-- Stats Cards -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div class="card">
           <div class="text-sm text-gray-500 mb-1">视频总数</div>
           <div class="text-2xl font-bold">{{ stats.videoCount }}</div>
@@ -58,7 +58,7 @@
       </div>
 
       <!-- Secondary Stats -->
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div class="card">
           <div class="text-sm text-gray-500 mb-1">平均播放</div>
           <div class="text-xl font-bold">{{ formatNumber(stats.avgPlay) }}</div>

@@ -146,6 +146,85 @@ export function exportVideoReportPDF(videos, stats) {
 }
 
 /**
+ * Export AI analysis report as PDF
+ */
+export function exportAIAnalysisPDF(liveSessions, videos, overall, videoAnalysis, liveAnalysis) {
+  const doc = new jsPDF()
+
+  // Title
+  doc.setFontSize(18)
+  doc.text('AI 数据洞察报告', 14, 20)
+
+  doc.setFontSize(10)
+  doc.text(`生成时间: ${new Date().toLocaleString('zh-CN')}`, 14, 28)
+
+  // Health score
+  doc.setFontSize(14)
+  doc.text(`账号健康度评分: ${overall.healthScore}/100`, 14, 42)
+
+  // Summary cards
+  doc.setFontSize(12)
+  doc.text('数据概览', 14, 54)
+
+  autoTable(doc, {
+    startY: 59,
+    head: [['指标', '数值', '趋势']],
+    body: overall.summaryCards.map(c => [c.label, c.value, c.trend]),
+    theme: 'grid',
+    headStyles: { fillColor: [0, 113, 227] },
+    styles: { font: 'helvetica', fontSize: 10 }
+  })
+
+  // Core insights
+  let finalY = doc.lastAutoTable?.finalY || 90
+  doc.setFontSize(12)
+  doc.text('核心洞察', 14, finalY + 10)
+
+  autoTable(doc, {
+    startY: finalY + 15,
+    head: [['序号', '洞察']],
+    body: overall.insights.map((insight, i) => [(i + 1).toString(), insight]),
+    theme: 'grid',
+    headStyles: { fillColor: [0, 113, 227] },
+    styles: { font: 'helvetica', fontSize: 9 }
+  })
+
+  // Video advice
+  if (videos.length > 0) {
+    finalY = doc.lastAutoTable?.finalY || 130
+    doc.setFontSize(12)
+    doc.text('短视频优化建议', 14, finalY + 10)
+
+    autoTable(doc, {
+      startY: finalY + 15,
+      head: [['序号', '建议']],
+      body: videoAnalysis.contentAdvice.map((advice, i) => [(i + 1).toString(), advice]),
+      theme: 'grid',
+      headStyles: { fillColor: [255, 159, 10] },
+      styles: { font: 'helvetica', fontSize: 9 }
+    })
+  }
+
+  // Live recommendations
+  if (liveSessions.length > 0) {
+    finalY = doc.lastAutoTable?.finalY || 170
+    doc.setFontSize(12)
+    doc.text('直播运营建议', 14, finalY + 10)
+
+    autoTable(doc, {
+      startY: finalY + 15,
+      head: [['序号', '建议']],
+      body: liveAnalysis.recommendations.map((rec, i) => [(i + 1).toString(), rec]),
+      theme: 'grid',
+      headStyles: { fillColor: [52, 199, 89] },
+      styles: { font: 'helvetica', fontSize: 9 }
+    })
+  }
+
+  doc.save('AI数据洞察报告.pdf')
+}
+
+/**
  * Export all data as Excel backup
  */
 export function exportAllDataExcel(liveSessions, videos) {

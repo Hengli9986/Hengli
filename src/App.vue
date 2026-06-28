@@ -29,9 +29,13 @@
           <span class="text-xl">🎬</span>
           <span>视频</span>
         </router-link>
-        <router-link to="/ai-assistant" class="flex flex-col items-center text-xs" active-class="text-primary">
-          <span class="text-xl">✨</span>
-          <span>AI助手</span>
+        <router-link to="/ai-analysis" class="flex flex-col items-center text-xs" active-class="text-primary">
+          <span class="text-xl">🤖</span>
+          <span>AI洞察</span>
+        </router-link>
+        <router-link to="/tasks" class="flex flex-col items-center text-xs" active-class="text-primary">
+          <span class="text-xl">📋</span>
+          <span>任务</span>
         </router-link>
       </div>
     </nav>

@@ -9,10 +9,15 @@ body {
 @layer components {
   .card {
     background: white;
-    border-radius: 0.75rem;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    border-radius: 0.875rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.07);
     border: 1px solid #f3f4f6;
-    padding: 1rem;
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+  }
+  .card-hover:hover {
+    box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.08);
+    transform: translateY(-1px);
   }
   .btn-primary {
     background: #0071e3;
@@ -20,9 +25,18 @@ body {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     transition: all 0.2s;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
-  .btn-primary:hover {
+  .btn-primary:hover:not(:disabled) {
     background: #0077ed;
+    box-shadow: 0 2px 8px rgba(0, 113, 227, 0.25);
+  }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
   .btn-secondary {
     background: #f3f4f6;
@@ -30,8 +44,49 @@ body {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     transition: all 0.2s;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
-  .btn-secondary:hover {
+  .btn-secondary:hover:not(:disabled) {
     background: #e5e7eb;
+  }
+  .btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .input-field {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    outline: none;
+  }
+  .input-field:focus {
+    border-color: #0071e3;
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+  }
+  .input-field::placeholder {
+    color: #9ca3af;
+  }
+  .skeleton {
+    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 0.5rem;
+  }
+  @keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .page-transition-enter-active,
+  .page-transition-leave-active {
+    transition: opacity 0.2s ease;
+  }
+  .page-transition-enter-from,
+  .page-transition-leave-to {
+    opacity: 0;
   }
 }

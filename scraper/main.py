@@ -22,7 +22,7 @@ def main():
 
     # Login command
     login_parser = subparsers.add_parser("login", help="登录抖音创作者服务中心")
-    login_parser.add_argument("--headless", action="store_true", help="无头模式")
+    login_parser.add_argument("--headless", action="store_true", help="无头模式 (登录时建议不要启用)")
 
     # Scrape live data
     live_parser = subparsers.add_parser("scrape-live", help="抓取直播数据")
@@ -45,7 +45,8 @@ def main():
     args = parser.parse_args()
 
     if args.command == "login":
-        auth = AuthManager(headless=args.headless)
+        # Login always uses headed mode (visible browser)
+        auth = AuthManager(headless=False)
         auth.login()
 
     elif args.command == "scrape-live":

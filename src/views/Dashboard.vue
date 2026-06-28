@@ -14,16 +14,10 @@
       </div>
     </div>
 
-    <div v-else class="max-w-6xl mx-auto p-6">
-      <!-- Header -->
-      <div class="mb-8">
-        <h1 class="text-2xl font-bold">仪表盘</h1>
-        <p class="text-gray-500 mt-1">数据总览与快速入口</p>
-      </div>
-
+    <div v-else>
       <!-- Quick Stats Row -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="card">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="card card-hover">
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm text-gray-500">直播场次</span>
             <span class="text-xl">📺</span>
@@ -34,7 +28,7 @@
           </router-link>
         </div>
         
-        <div class="card">
+        <div class="card card-hover">
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm text-gray-500">视频数量</span>
             <span class="text-xl">🎬</span>
@@ -45,7 +39,7 @@
           </router-link>
         </div>
         
-        <div class="card">
+        <div class="card card-hover">
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm text-gray-500">总GMV</span>
             <span class="text-xl">💰</span>
@@ -56,7 +50,7 @@
           </router-link>
         </div>
         
-        <div class="card">
+        <div class="card card-hover">
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm text-gray-500">总播放</span>
             <span class="text-xl">▶️</span>
@@ -69,23 +63,41 @@
       </div>
 
       <!-- Quick Actions -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <router-link to="/import" class="card p-6 hover:shadow-md transition-shadow cursor-pointer">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <router-link to="/import" class="card card-hover p-6 cursor-pointer">
           <div class="text-3xl mb-3">📁</div>
           <h3 class="font-bold text-lg mb-1">导入数据</h3>
-          <p class="text-sm text-gray-500">上传 Excel/CSV 文件导入直播或短视频数据</p>
+          <p class="text-sm text-gray-500">上传 Excel/CSV 文件或截图 OCR 导入直播或短视频数据</p>
         </router-link>
         
-        <router-link to="/live" class="card p-6 hover:shadow-md transition-shadow cursor-pointer">
+        <router-link to="/live" class="card card-hover p-6 cursor-pointer">
           <div class="text-3xl mb-3">📺</div>
           <h3 class="font-bold text-lg mb-1">直播分析</h3>
           <p class="text-sm text-gray-500">查看直播数据趋势、GMV分析和场次对比</p>
         </router-link>
         
-        <router-link to="/video" class="card p-6 hover:shadow-md transition-shadow cursor-pointer">
+        <router-link to="/video" class="card card-hover p-6 cursor-pointer">
           <div class="text-3xl mb-3">🎬</div>
           <h3 class="font-bold text-lg mb-1">短视频分析</h3>
           <p class="text-sm text-gray-500">分析视频播放量、互动率和爆款检测</p>
+        </router-link>
+        
+        <router-link to="/ai-analysis" class="card card-hover p-6 cursor-pointer">
+          <div class="text-3xl mb-3">🤖</div>
+          <h3 class="font-bold text-lg mb-1">AI 数据洞察</h3>
+          <p class="text-sm text-gray-500">基于真实数据生成运营建议与趋势分析</p>
+        </router-link>
+        
+        <router-link to="/tasks" class="card card-hover p-6 cursor-pointer">
+          <div class="text-3xl mb-3">📋</div>
+          <h3 class="font-bold text-lg mb-1">任务管理</h3>
+          <p class="text-sm text-gray-500">创建待办任务，跟踪运营执行进度</p>
+        </router-link>
+        
+        <router-link to="/ai-assistant" class="card card-hover p-6 cursor-pointer">
+          <div class="text-3xl mb-3">✨</div>
+          <h3 class="font-bold text-lg mb-1">AI 内容助手</h3>
+          <p class="text-sm text-gray-500">违禁词检测、去 AI 味、文案诊断、UI 设计建议</p>
         </router-link>
       </div>
 
