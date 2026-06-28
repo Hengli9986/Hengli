@@ -7,7 +7,13 @@
       <h1 class="text-2xl font-bold">直播详情</h1>
     </div>
 
-    <div v-if="!session" class="card p-12 text-center">
+    <div v-if="dataStore.isLoading" class="card p-12 text-center">
+      <div class="text-6xl mb-4">⏳</div>
+      <h3 class="text-xl font-bold mb-2">加载中...</h3>
+      <p class="text-gray-500">正在加载直播数据</p>
+    </div>
+
+    <div v-else-if="!session" class="card p-12 text-center">
       <div class="text-6xl mb-4">📺</div>
       <h3 class="text-xl font-bold mb-2">直播数据未找到</h3>
       <p class="text-gray-500 mb-6">该直播场次可能已被删除或数据未导入</p>
@@ -22,11 +28,11 @@
         <div class="flex items-center justify-between">
           <div>
             <div class="text-sm text-gray-500">直播日期</div>
-            <div class="text-xl font-bold">{{ session.直播日期 || session.date || '-' }}</div>
+            <div class="text-xl font-bold">{{ session.live_date || '-' }}</div>
           </div>
           <div class="text-right">
             <div class="text-sm text-gray-500">直播时长</div>
-            <div class="text-xl font-bold">{{ session.直播时长 || session.duration || '-' }} 分钟</div>
+            <div class="text-xl font-bold">{{ session.duration_minutes || '-' }} 分钟</div>
           </div>
         </div>
       </div>
@@ -35,19 +41,19 @@
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="card">
           <div class="text-sm text-gray-500 mb-1">场均观看</div>
-          <div class="text-2xl font-bold">{{ formatNumber(session.场均观看 || session.watchCount) }}</div>
+          <div class="text-2xl font-bold">{{ formatNumber(session.avg_watch) }}</div>
         </div>
         <div class="card">
           <div class="text-sm text-gray-500 mb-1">直播GMV</div>
-          <div class="text-2xl font-bold text-green-600">¥{{ formatNumber(session.直播GMV || session.gmv) }}</div>
+          <div class="text-2xl font-bold text-green-600">¥{{ formatNumber(session.gmv) }}</div>
         </div>
         <div class="card">
           <div class="text-sm text-gray-500 mb-1">成交订单</div>
-          <div class="text-2xl font-bold">{{ formatNumber(session.成交订单数 || session.orders) }}</div>
+          <div class="text-2xl font-bold">{{ formatNumber(session.orders) }}</div>
         </div>
         <div class="card">
           <div class="text-sm text-gray-500 mb-1">新增粉丝</div>
-          <div class="text-2xl font-bold text-primary">{{ formatNumber(session.新增粉丝 || session.newFans) }}</div>
+          <div class="text-2xl font-bold text-primary">{{ formatNumber(session.new_fans) }}</div>
         </div>
       </div>
 
@@ -110,20 +116,24 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDataStore } from '../stores/data'
 
 const route = useRoute()
 const dataStore = useDataStore()
 
+onMounted(() => {
+  dataStore.loadData()
+})
+
 const session = computed(() => {
-  return dataStore.liveSessions.find(s => s._id === route.params.id)
+  return dataStore.liveSessions.find(s => s.id === route.params.id)
 })
 
 const sessionData = computed(() => {
   if (!session.value) return {}
-  const { _id, type, ...rest } = session.value
+  const { id, user_id, account_id, type, created_at, raw_data, ...rest } = session.value
   return rest
 })
 
@@ -139,11 +149,11 @@ function formatNumber(num) {
 }
 
 // Computed metrics
-const watchCount = computed(() => parseFloat(session.value?.场均观看 || session.value?.watchCount) || 0)
-const gmv = computed(() => parseFloat(session.value?.直播GMV || session.value?.gmv) || 0)
-const orders = computed(() => parseFloat(session.value?.成交订单数 || session.value?.orders) || 0)
-const duration = computed(() => parseFloat(session.value?.直播时长 || session.value?.duration) || 0)
-const newFans = computed(() => parseFloat(session.value?.新增粉丝 || session.value?.newFans) || 0)
+const watchCount = computed(() => parseFloat(session.value?.avg_watch) || 0)
+const gmv = computed(() => parseFloat(session.value?.gmv) || 0)
+const orders = computed(() => parseFloat(session.value?.orders) || 0)
+const duration = computed(() => parseFloat(session.value?.duration_minutes) || 0)
+const newFans = computed(() => parseFloat(session.value?.new_fans) || 0)
 
 const conversionRate = computed(() => {
   if (watchCount.value === 0) return '0.00'

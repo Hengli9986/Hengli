@@ -1,5 +1,12 @@
 <template>
   <div class="max-w-6xl mx-auto p-6">
+    <!-- Loading state -->
+    <div v-if="dataStore.isLoading" class="text-center py-12">
+      <div class="text-2xl mb-2">⏳</div>
+      <div class="text-gray-500">加载中...</div>
+    </div>
+
+    <div v-else>
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
       <div>
@@ -26,7 +33,7 @@
       </router-link>
     </div>
 
-    <template v-else>
+    <div v-else>
       <!-- Stats Cards -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="card">
@@ -94,14 +101,14 @@
             </div>
             <div class="flex-1 min-w-0">
               <div class="font-medium truncate">{{ video.title }}</div>
-              <div class="text-sm text-gray-500">{{ video.publishTime }}</div>
+              <div class="text-sm text-gray-500">{{ video.publish_time }}</div>
             </div>
             <div class="text-right ml-4">
-              <div class="font-bold">{{ formatNumber(video.playCount) }}</div>
+              <div class="font-bold">{{ formatNumber(video.play_count) }}</div>
               <div class="text-xs text-gray-500">播放</div>
             </div>
             <div class="text-right ml-4">
-              <div class="font-bold text-red-500">{{ formatNumber(video.likeCount) }}</div>
+              <div class="font-bold text-red-500">{{ formatNumber(video.like_count) }}</div>
               <div class="text-xs text-gray-500">点赞</div>
             </div>
           </div>
@@ -127,27 +134,28 @@
             <tbody>
               <tr 
                 v-for="video in sortedVideos" 
-                :key="video._id"
+                :key="video.id"
                 class="border-b border-gray-100 hover:bg-gray-50"
               >
-                <td class="py-2 px-3 max-w-xs truncate">{{ video.视频标题 || video.title || '未命名' }}</td>
-                <td class="py-2 px-3">{{ video.发布时间 || video.publishTime || '-' }}</td>
-                <td class="py-2 px-3 text-right">{{ formatNumber(video.播放量 || video.playCount) }}</td>
-                <td class="py-2 px-3 text-right text-red-500">{{ formatNumber(video.点赞数 || video.likeCount) }}</td>
-                <td class="py-2 px-3 text-right">{{ formatNumber(video.评论数 || video.commentCount) }}</td>
-                <td class="py-2 px-3 text-right">{{ formatNumber(video.分享数 || video.shareCount) }}</td>
-                <td class="py-2 px-3 text-right">{{ formatNumber(video.收藏数 || video.collectCount) }}</td>
+                <td class="py-2 px-3 max-w-xs truncate">{{ video.title || '未命名' }}</td>
+                <td class="py-2 px-3">{{ video.publish_time || '-' }}</td>
+                <td class="py-2 px-3 text-right">{{ formatNumber(video.play_count) }}</td>
+                <td class="py-2 px-3 text-right text-red-500">{{ formatNumber(video.like_count) }}</td>
+                <td class="py-2 px-3 text-right">{{ formatNumber(video.comment_count) }}</td>
+                <td class="py-2 px-3 text-right">{{ formatNumber(video.share_count) }}</td>
+                <td class="py-2 px-3 text-right">{{ formatNumber(video.collect_count) }}</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-    </template>
+    </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart, BarChart, PieChart } from 'echarts/charts'
@@ -159,6 +167,10 @@ use([CanvasRenderer, LineChart, BarChart, PieChart, GridComponent, TooltipCompon
 
 const dataStore = useDataStore()
 
+onMounted(() => {
+  dataStore.loadData()
+})
+
 const hasData = computed(() => dataStore.videos.length > 0)
 const stats = computed(() => dataStore.videoStats || {
   videoCount: 0, totalPlay: 0, totalLike: 0, engagementRate: '0.00',
@@ -167,8 +179,8 @@ const stats = computed(() => dataStore.videoStats || {
 
 const sortedVideos = computed(() => {
   return [...dataStore.videos].sort((a, b) => {
-    const playA = parseFloat(a.播放量 || a.playCount) || 0
-    const playB = parseFloat(b.播放量 || b.playCount) || 0
+    const playA = parseFloat(a.play_count) || 0
+    const playB = parseFloat(b.play_count) || 0
     return playB - playA
   })
 })
@@ -185,18 +197,18 @@ function formatNumber(num) {
 // ========== Chart Options ==========
 const chartData = computed(() => {
   const videos = [...dataStore.videos].sort((a, b) => {
-    const dateA = new Date(a.发布时间 || a.publishTime || 0)
-    const dateB = new Date(b.发布时间 || b.publishTime || 0)
+    const dateA = new Date(a.publish_time || 0)
+    const dateB = new Date(b.publish_time || 0)
     return dateA - dateB
   })
   
   return {
-    dates: videos.map(v => v.发布时间 || v.publishTime || '').slice(-20), // Last 20
-    play: videos.map(v => parseFloat(v.播放量 || v.playCount) || 0).slice(-20),
-    like: videos.map(v => parseFloat(v.点赞数 || v.likeCount) || 0).slice(-20),
-    comment: videos.map(v => parseFloat(v.评论数 || v.commentCount) || 0).slice(-20),
-    share: videos.map(v => parseFloat(v.分享数 || v.shareCount) || 0).slice(-20),
-    collect: videos.map(v => parseFloat(v.收藏数 || v.collectCount) || 0).slice(-20)
+    dates: videos.map(v => v.publish_time || '').slice(-20), // Last 20
+    play: videos.map(v => parseFloat(v.play_count) || 0).slice(-20),
+    like: videos.map(v => parseFloat(v.like_count) || 0).slice(-20),
+    comment: videos.map(v => parseFloat(v.comment_count) || 0).slice(-20),
+    share: videos.map(v => parseFloat(v.share_count) || 0).slice(-20),
+    collect: videos.map(v => parseFloat(v.collect_count) || 0).slice(-20)
   }
 })
 
@@ -213,10 +225,10 @@ const playChartOption = computed(() => ({
 
 const engagementChartOption = computed(() => {
   const totals = {
-    点赞: dataStore.videos.reduce((sum, v) => sum + (parseFloat(v.点赞数 || v.likeCount) || 0), 0),
-    评论: dataStore.videos.reduce((sum, v) => sum + (parseFloat(v.评论数 || v.commentCount) || 0), 0),
-    分享: dataStore.videos.reduce((sum, v) => sum + (parseFloat(v.分享数 || v.shareCount) || 0), 0),
-    收藏: dataStore.videos.reduce((sum, v) => sum + (parseFloat(v.收藏数 || v.collectCount) || 0), 0)
+    点赞: dataStore.videos.reduce((sum, v) => sum + (parseFloat(v.like_count) || 0), 0),
+    评论: dataStore.videos.reduce((sum, v) => sum + (parseFloat(v.comment_count) || 0), 0),
+    分享: dataStore.videos.reduce((sum, v) => sum + (parseFloat(v.share_count) || 0), 0),
+    收藏: dataStore.videos.reduce((sum, v) => sum + (parseFloat(v.collect_count) || 0), 0)
   }
   
   return {

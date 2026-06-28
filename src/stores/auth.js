@@ -1,35 +1,53 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { supabase } from '../lib/supabase'
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(JSON.parse(localStorage.getItem('user') || 'null'))
+  const user = ref(null)
+  const loading = ref(true)
+  const isAuthenticated = computed(() => !!user.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
 
+  // Initialize auth state from Supabase session
+  async function initAuth() {
+    const { data: { session } } = await supabase.auth.getSession()
+    user.value = session?.user ?? null
+    loading.value = false
+
+    // Listen for auth changes
+    supabase.auth.onAuthStateChange((event, session) => {
+      user.value = session?.user ?? null
+    })
+  }
+
   async function login(email, password) {
-    // MVP: Simple localStorage auth (replace with Supabase Auth in production)
-    const users = JSON.parse(localStorage.getItem('users') || '[]')
-    const found = users.find(u => u.email === email && u.password === password)
-    if (!found) throw new Error('邮箱或密码错误')
-    user.value = found
-    localStorage.setItem('user', JSON.stringify(found))
-    return found
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) throw error
+    user.value = data.user
+    return data.user
   }
 
   async function register(email, password, name) {
-    const users = JSON.parse(localStorage.getItem('users') || '[]')
-    if (users.find(u => u.email === email)) throw new Error('邮箱已注册')
-    const newUser = { id: Date.now().toString(), email, password, name, role: 'member' }
-    users.push(newUser)
-    localStorage.setItem('users', JSON.stringify(users))
-    user.value = newUser
-    localStorage.setItem('user', JSON.stringify(newUser))
-    return newUser
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name }
+      }
+    })
+    if (error) throw error
+    user.value = data.user
+    return data.user
   }
 
-  function logout() {
+  async function logout() {
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
     user.value = null
-    localStorage.removeItem('user')
   }
 
-  return { user, isAdmin, login, register, logout }
+  // Initialize immediately
+  initAuth()
+
+  return { user, loading, isAuthenticated, isAdmin, login, register, logout, initAuth }
 })

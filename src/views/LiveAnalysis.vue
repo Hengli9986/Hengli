@@ -1,5 +1,12 @@
 <template>
   <div class="max-w-6xl mx-auto p-6">
+    <!-- Loading state -->
+    <div v-if="dataStore.isLoading" class="text-center py-12">
+      <div class="text-2xl mb-2">⏳</div>
+      <div class="text-gray-500">加载中...</div>
+    </div>
+
+    <div v-else>
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
       <div>
@@ -26,7 +33,7 @@
       </router-link>
     </div>
 
-    <template v-else>
+    <div v-else>
       <!-- Stats Cards -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="card">
@@ -119,7 +126,8 @@
           </table>
         </div>
       </div>
-    </template>
+  </div>
+  </div>
   </div>
 </template>
 

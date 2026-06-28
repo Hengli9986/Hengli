@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { supabase } from '../lib/supabase'
 import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
 import DataImport from '../views/DataImport.vue'
@@ -23,8 +24,9 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('user') !== null
+router.beforeEach(async (to, from, next) => {
+  const { data: { session } } = await supabase.auth.getSession()
+  const isAuthenticated = !!session
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login')
   } else {

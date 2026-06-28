@@ -1,30 +1,27 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { supabase } from '../lib/supabase'
+import { useAuthStore } from './auth'
 
 export const useDataStore = defineStore('data', () => {
-  // ========== 导入的原始数据 ==========
-  const importedData = ref([])
+  // ========== Raw data from Supabase ==========
+  const liveSessions = ref([])
+  const videos = ref([])
   const importHistory = ref([])
-  const currentImportType = ref('') // 'live' | 'video'
+  const currentImportType = ref('')
   const isLoading = ref(false)
   const error = ref(null)
 
-  // ========== 直播数据 ==========
-  const liveSessions = computed(() => {
-    return importedData.value.filter(row => 
-      row.type === 'live' || row.直播时长 || row.场均观看 || row.直播场次
-    )
-  })
-
+  // ========== Computed stats (Live) ==========
   const liveStats = computed(() => {
     const sessions = liveSessions.value
     if (!sessions.length) return null
-    
-    const totalWatch = sessions.reduce((sum, s) => sum + (parseFloat(s.场均观看) || 0), 0)
-    const totalDuration = sessions.reduce((sum, s) => sum + (parseFloat(s.直播时长) || 0), 0)
-    const totalGmv = sessions.reduce((sum, s) => sum + (parseFloat(s.直播GMV) || 0), 0)
-    const totalOrders = sessions.reduce((sum, s) => sum + (parseFloat(s.成交订单数) || 0), 0)
-    
+
+    const totalWatch = sessions.reduce((sum, s) => sum + (s.avg_watch || 0), 0)
+    const totalDuration = sessions.reduce((sum, s) => sum + (s.duration_minutes || 0), 0)
+    const totalGmv = sessions.reduce((sum, s) => sum + (parseFloat(s.gmv) || 0), 0)
+    const totalOrders = sessions.reduce((sum, s) => sum + (s.orders || 0), 0)
+
     return {
       sessionCount: sessions.length,
       avgWatch: Math.round(totalWatch / sessions.length),
@@ -32,36 +29,29 @@ export const useDataStore = defineStore('data', () => {
       totalGmv: Math.round(totalGmv),
       totalOrders: Math.round(totalOrders),
       avgGmvPerSession: Math.round(totalGmv / sessions.length),
-      avgConversion: sessions.length > 0 
-        ? ((totalOrders / totalWatch) * 100).toFixed(2) 
+      avgConversion: sessions.length > 0
+        ? ((totalOrders / totalWatch) * 100).toFixed(2)
         : '0.00'
     }
   })
 
-  // ========== 视频数据 ==========
-  const videos = computed(() => {
-    return importedData.value.filter(row => 
-      row.type === 'video' || row.播放量 || row.点赞数 || row.视频标题
-    )
-  })
-
+  // ========== Computed stats (Video) ==========
   const videoStats = computed(() => {
     const vids = videos.value
     if (!vids.length) return null
 
-    const totalPlay = vids.reduce((sum, v) => sum + (parseFloat(v.播放量) || 0), 0)
-    const totalLike = vids.reduce((sum, v) => sum + (parseFloat(v.点赞数) || 0), 0)
-    const totalComment = vids.reduce((sum, v) => sum + (parseFloat(v.评论数) || 0), 0)
-    const totalShare = vids.reduce((sum, v) => sum + (parseFloat(v.分享数) || 0), 0)
-    const totalCollect = vids.reduce((sum, v) => sum + (parseFloat(v.收藏数) || 0), 0)
+    const totalPlay = vids.reduce((sum, v) => sum + (v.play_count || 0), 0)
+    const totalLike = vids.reduce((sum, v) => sum + (v.like_count || 0), 0)
+    const totalComment = vids.reduce((sum, v) => sum + (v.comment_count || 0), 0)
+    const totalShare = vids.reduce((sum, v) => sum + (v.share_count || 0), 0)
+    const totalCollect = vids.reduce((sum, v) => sum + (v.collect_count || 0), 0)
 
-    // 互动率 = (点赞+评论+分享+收藏) / 播放量
-    const engagement = totalPlay > 0 
+    const engagement = totalPlay > 0
       ? (((totalLike + totalComment + totalShare + totalCollect) / totalPlay) * 100).toFixed(2)
       : '0.00'
 
-    // 找出爆款视频（播放量前10%）
-    const sortedByPlay = [...vids].sort((a, b) => (b.播放量 || 0) - (a.播放量 || 0))
+    // Top videos (top 10%)
+    const sortedByPlay = [...vids].sort((a, b) => (b.play_count || 0) - (a.play_count || 0))
     const topThreshold = Math.ceil(vids.length * 0.1)
     const topVideos = sortedByPlay.slice(0, topThreshold)
 
@@ -75,86 +65,172 @@ export const useDataStore = defineStore('data', () => {
       avgLike: Math.round(totalLike / vids.length),
       engagementRate: engagement,
       topVideos: topVideos.map(v => ({
-        title: v.视频标题 || v.title || '未命名',
-        playCount: v.播放量 || 0,
-        likeCount: v.点赞数 || 0,
-        publishTime: v.发布时间 || v.publishTime || ''
+        title: v.title || '未命名',
+        playCount: v.play_count || 0,
+        likeCount: v.like_count || 0,
+        publishTime: v.publish_time || ''
       }))
     }
   })
 
   // ========== Actions ==========
-  function setImportedData(data, type) {
-    importedData.value = data.map((row, index) => ({
-      ...row,
-      _id: `${type}_${index}_${Date.now()}`,
-      type: type
-    }))
-    currentImportType.value = type
-    
-    // 添加到导入历史
-    importHistory.value.unshift({
-      id: Date.now(),
-      type,
-      count: data.length,
-      timestamp: new Date().toLocaleString('zh-CN'),
-      preview: data.slice(0, 3)
-    })
-    
-    // 持久化到 localStorage
-    saveToStorage()
-  }
+  async function loadData() {
+    const authStore = useAuthStore()
+    if (!authStore.user) return
 
-  function clearData() {
-    importedData.value = []
-    currentImportType.value = ''
-    saveToStorage()
-  }
+    isLoading.value = true
+    error.value = null
 
-  function saveToStorage() {
-    localStorage.setItem('geek_douyin_data', JSON.stringify({
-      importedData: importedData.value,
-      importHistory: importHistory.value.slice(0, 20), // 只保留最近20条
-      currentImportType: currentImportType.value
-    }))
-  }
-
-  function loadFromStorage() {
     try {
-      const stored = localStorage.getItem('geek_douyin_data')
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        importedData.value = parsed.importedData || []
-        importHistory.value = parsed.importHistory || []
-        currentImportType.value = parsed.currentImportType || ''
-      }
-    } catch (e) {
-      console.error('Failed to load data from storage:', e)
+      // Load live sessions
+      const { data: liveData, error: liveError } = await supabase
+        .from('live_sessions')
+        .select('*')
+        .eq('user_id', authStore.user.id)
+        .order('created_at', { ascending: false })
+
+      if (liveError) throw liveError
+      liveSessions.value = liveData || []
+
+      // Load videos
+      const { data: videoData, error: videoError } = await supabase
+        .from('videos')
+        .select('*')
+        .eq('user_id', authStore.user.id)
+        .order('created_at', { ascending: false })
+
+      if (videoError) throw videoError
+      videos.value = videoData || []
+
+      // Load import logs
+      const { data: logData, error: logError } = await supabase
+        .from('import_logs')
+        .select('*')
+        .eq('user_id', authStore.user.id)
+        .order('created_at', { ascending: false })
+        .limit(20)
+
+      if (logError) throw logError
+      importHistory.value = (logData || []).map(log => ({
+        id: log.id,
+        type: log.import_type,
+        count: log.record_count,
+        timestamp: new Date(log.created_at).toLocaleString('zh-CN'),
+        fileName: log.file_name
+      }))
+    } catch (err) {
+      error.value = err.message
+      console.error('Failed to load data:', err)
+    } finally {
+      isLoading.value = false
     }
   }
 
-  function removeImportHistoryItem(id) {
-    importHistory.value = importHistory.value.filter(h => h.id !== id)
-    saveToStorage()
+  async function setImportedData(data, type) {
+    const authStore = useAuthStore()
+    if (!authStore.user) throw new Error('请先登录')
+
+    isLoading.value = true
+    error.value = null
+    currentImportType.value = type
+
+    try {
+      // Transform data to match schema
+      const records = data.map(row => {
+        const base = {
+          user_id: authStore.user.id,
+          raw_data: row
+        }
+
+        if (type === 'live') {
+          return {
+            ...base,
+            live_date: row.直播日期 || row.date || null,
+            duration_minutes: parseInt(row.直播时长 || row.duration) || null,
+            avg_watch: parseInt(row.场均观看 || row.watchCount) || null,
+            gmv: parseFloat(row.直播GMV || row.gmv) || null,
+            orders: parseInt(row.成交订单数 || row.orders) || null,
+            new_fans: parseInt(row.新增粉丝 || row.newFans) || null,
+            interactions: parseInt(row.互动人数 || row.interactions) || null
+          }
+        } else {
+          return {
+            ...base,
+            title: row.视频标题 || row.title || null,
+            publish_time: row.发布时间 || row.publishTime || null,
+            play_count: parseInt(row.播放量 || row.playCount) || null,
+            like_count: parseInt(row.点赞数 || row.likeCount) || null,
+            comment_count: parseInt(row.评论数 || row.commentCount) || null,
+            share_count: parseInt(row.分享数 || row.shareCount) || null,
+            collect_count: parseInt(row.收藏数 || row.collectCount) || null,
+            completion_rate: parseFloat(row.完播率 || row.completionRate) || null
+          }
+        }
+      })
+
+      // Insert to Supabase
+      const table = type === 'live' ? 'live_sessions' : 'videos'
+      const { error: insertError } = await supabase.from(table).insert(records)
+
+      if (insertError) throw insertError
+
+      // Log import
+      const { error: logError } = await supabase.from('import_logs').insert({
+        user_id: authStore.user.id,
+        import_type: type,
+        record_count: data.length
+      })
+
+      if (logError) console.warn('Failed to log import:', logError)
+
+      // Reload data
+      await loadData()
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      isLoading.value = false
+    }
   }
 
-  // 初始化时加载
-  loadFromStorage()
+  async function clearData() {
+    const authStore = useAuthStore()
+    if (!authStore.user) return
+
+    isLoading.value = true
+    try {
+      await supabase.from('live_sessions').delete().eq('user_id', authStore.user.id)
+      await supabase.from('videos').delete().eq('user_id', authStore.user.id)
+      await supabase.from('import_logs').delete().eq('user_id', authStore.user.id)
+      await loadData()
+    } catch (err) {
+      error.value = err.message
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function removeImportHistoryItem(id) {
+    const { error: deleteError } = await supabase.from('import_logs').delete().eq('id', id)
+    if (deleteError) {
+      console.error('Failed to delete import log:', deleteError)
+      return
+    }
+    importHistory.value = importHistory.value.filter(h => h.id !== id)
+  }
 
   return {
-    importedData,
+    liveSessions,
+    videos,
     importHistory,
     currentImportType,
     isLoading,
     error,
-    liveSessions,
     liveStats,
-    videos,
     videoStats,
+    loadData,
     setImportedData,
     clearData,
-    loadFromStorage,
-    saveToStorage,
     removeImportHistoryItem
   }
 })

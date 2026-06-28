@@ -1,5 +1,12 @@
 <template>
   <div class="max-w-6xl mx-auto p-6">
+    <!-- Loading state -->
+    <div v-if="dataStore.isLoading" class="text-center py-12">
+      <div class="text-2xl mb-2">⏳</div>
+      <div class="text-gray-500">加载中...</div>
+    </div>
+
+    <template v-else>
     <!-- Header -->
     <div class="mb-8">
       <h1 class="text-2xl font-bold mb-2">数据导入</h1>
@@ -159,11 +166,12 @@
     >
       ✅ 导入成功！{{ successCount }} 条数据已保存
     </div>
+    </template>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import * as XLSX from 'xlsx'
 import { useDataStore } from '../stores/data'
@@ -183,6 +191,10 @@ const previewHeaders = ref([])
 
 const showSuccess = ref(false)
 const successCount = ref(0)
+
+onMounted(() => {
+  dataStore.loadData()
+})
 
 // ========== File Handling ==========
 function handleDrop(e) {

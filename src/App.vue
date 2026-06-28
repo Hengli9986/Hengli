@@ -1,5 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div v-if="auth.loading" class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="text-center">
+      <div class="text-2xl mb-2">⏳</div>
+      <div class="text-gray-500">加载中...</div>
+    </div>
+  </div>
+  <div v-else class="min-h-screen bg-gray-50">
     <NavBar v-if="auth.user" />
     <router-view />
     <TaskFloat v-if="auth.user" />
