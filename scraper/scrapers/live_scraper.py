@@ -52,60 +52,12 @@ class LiveScraper:
             browser.close()
             p.stop()
 
-    def _extract_live_data(self, page):
-        """Extract live session data from the page.
-
-        Note: CSS selectors are placeholders and may need adjustment
-        based on actual Douyin creator center DOM structure.
-        """
-        data = []
-
-        # Try multiple selector strategies
-        selectors = [
-            "table tbody tr",
-            "[class*='table'] [class*='row']",
-            "[class*='data-list'] > div",
-            "[class*='live-item']",
-            ".data-row",
-        ]
-
-        rows = []
-        for selector in selectors:
-            rows = page.query_selector_all(selector)
-            if len(rows) > 0:
-                print(f"使用选择器: {selector} (找到 {len(rows)} 行)")
-                break
-
-        if not rows:
-            print("警告: 未找到任何数据行，请检查页面结构")
-            # Save page HTML for debugging
+    def _save_debug_html(self, page, filename):
+        """Save page HTML for debugging."""
+        try:
             html = page.content()
-            debug_file = self.output_dir / "debug_live_page.html"
+            debug_file = self.output_dir / f"{filename}.html"
             debug_file.write_text(html, encoding="utf-8")
-            print(f"页面 HTML 已保存到 {debug_file} 供调试")
-            return data
-
-        for i, row in enumerate(rows[1:] if len(rows) > 1 else rows):  # Skip header if exists
-            try:
-                cells = row.query_selector_all(
-                    "td, [class*='cell'], [class*='col'], > div"
-                )
-                if len(cells) < 6:
-                    continue
-
-                data.append({
-                    "直播日期": cells[0].inner_text().strip(),
-                    "直播时长": cells[1].inner_text().strip(),
-                    "场均观看": cells[2].inner_text().strip(),
-                    "直播GMV": cells[3].inner_text().strip(),
-                    "成交订单数": cells[4].inner_text().strip(),
-                    "新增粉丝": cells[5].inner_text().strip(),
-                    "互动人数": cells[6].inner_text().strip()
-                    if len(cells) > 6
-                    else "0",
-                })
-            except Exception as e:
-                print(f"解析第 {i} 行时出错: {e}")
-                continue
-
-        return data
+            print(f"📄 调试页面已保存: {debug_file}")
+        except Exception as e:
+            print(f"保存调试页面失败: {e}")
