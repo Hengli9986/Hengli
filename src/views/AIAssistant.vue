@@ -2,8 +2,8 @@
   <div class="max-w-6xl mx-auto p-6">
     <!-- Header -->
     <div class="mb-8">
-      <h1 class="text-2xl font-bold">AI 内容助手</h1>
-      <p class="text-gray-500 mt-1">智能工具箱：违禁词检测、去 AI 味、文案诊断、UI 设计建议</p>
+      <h1 class="text-2xl font-bold">文案助手</h1>
+      <p class="text-gray-500 mt-1">智能工具箱：违禁词检测、去 AI 味、文案诊断</p>
     </div>
 
     <!-- Tool Cards Grid -->
@@ -61,26 +61,6 @@
             <div class="mt-2 flex flex-wrap gap-2">
               <span class="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded">22 条 AI 指纹</span>
               <span class="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded">深度追问</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- UI 设计建议 -->
-      <div 
-        class="card p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-transparent hover:border-green-200"
-        :class="{ 'border-green-300 bg-green-50': activeTool === 'design' }"
-        @click="activeTool = 'design'"
-      >
-        <div class="flex items-start space-x-4">
-          <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center text-2xl">🎨</div>
-          <div class="flex-1">
-            <h3 class="font-bold text-lg mb-1">UI 设计建议</h3>
-            <p class="text-sm text-gray-500">为产品前端界面提供独特的视觉设计方向，避免模板化，打造有辨识度的界面</p>
-            <div class="mt-2 flex flex-wrap gap-2">
-              <span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">配色方案</span>
-              <span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">排版建议</span>
-              <span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">布局指导</span>
             </div>
           </div>
         </div>
@@ -408,123 +388,6 @@
           <div v-if="diagnoseResult.summary" class="mt-4 p-4 bg-purple-50 rounded-lg">
             <div class="font-medium text-purple-800 mb-1">诊断总结</div>
             <div class="text-sm text-purple-700">{{ diagnoseResult.summary }}</div>
-          </div>
-        </div>
-      </template>
-
-      <!-- UI 设计建议面板 -->
-      <template v-if="activeTool === 'design'">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold flex items-center">
-            <span class="mr-2">🎨</span> UI 设计建议
-          </h2>
-          <button @click="activeTool = ''" class="text-gray-400 hover:text-gray-600">✕</button>
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">设计需求</label>
-          <textarea 
-            v-model="designForm.brief"
-            rows="4"
-            class="w-full p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-200 focus:border-green-300 outline-none resize-none"
-            placeholder="描述你的设计需求，例如：需要一个短视频数据分析仪表盘，目标用户是抖音创作者，希望界面简洁专业..."
-          ></textarea>
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">设计方向（可选）</label>
-          <div class="flex flex-wrap gap-3">
-            <button 
-              v-for="dir in ['极简现代', '温暖有机', '大胆前卫', '专业商务', '活泼创意']" 
-              :key="dir"
-              @click="toggleDesignDirection(dir)"
-              :class="[
-                'px-4 py-2 rounded-lg text-sm transition-all',
-                designForm.directions.includes(dir)
-                  ? 'bg-green-500 text-white' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              ]"
-            >
-              {{ dir }}
-            </button>
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">页面类型</label>
-          <div class="flex space-x-3">
-            <button 
-              v-for="type in ['数据仪表盘', '内容展示', '表单/输入', '电商/商品', '社交/社区']" 
-              :key="type"
-              @click="designForm.pageType = type"
-              :class="[
-                'px-4 py-2 rounded-lg text-sm transition-all',
-                designForm.pageType === type 
-                  ? 'bg-green-500 text-white' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              ]"
-            >
-              {{ type }}
-            </button>
-          </div>
-        </div>
-
-        <button 
-          @click="getDesignAdvice"
-          :disabled="!designForm.brief || isAnalyzing"
-          class="btn-primary w-full py-3"
-          :class="{ 'opacity-50 cursor-not-allowed': !designForm.brief || isAnalyzing }"
-        >
-          {{ isAnalyzing ? '生成中...' : '🎨 获取设计建议' }}
-        </button>
-
-        <!-- Results -->
-        <div v-if="designResult" class="mt-6 space-y-6">
-          <!-- Color Palette -->
-          <div v-if="designResult.colors">
-            <h3 class="font-bold mb-3">配色方案</h3>
-            <div class="flex space-x-4">
-              <div 
-                v-for="(color, name) in designResult.colors" 
-                :key="name"
-                class="text-center"
-              >
-                <div 
-                  class="w-16 h-16 rounded-lg shadow-inner mb-2"
-                  :style="{ backgroundColor: color }"
-                ></div>
-                <div class="text-xs font-medium">{{ name }}</div>
-                <div class="text-xs text-gray-500">{{ color }}</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Typography -->
-          <div v-if="designResult.typography">
-            <h3 class="font-bold mb-3">字体建议</h3>
-            <div class="p-4 bg-gray-50 rounded-lg text-sm">
-              <div class="mb-2"><span class="font-medium">显示字体：</span>{{ designResult.typography.display }}</div>
-              <div class="mb-2"><span class="font-medium">正文字体：</span>{{ designResult.typography.body }}</div>
-              <div><span class="font-medium">辅助字体：</span>{{ designResult.typography.utility }}</div>
-            </div>
-          </div>
-
-          <!-- Layout -->
-          <div v-if="designResult.layout">
-            <h3 class="font-bold mb-3">布局概念</h3>
-            <div class="p-4 bg-gray-50 rounded-lg text-sm whitespace-pre-line">{{ designResult.layout }}</div>
-          </div>
-
-          <!-- Signature Element -->
-          <div v-if="designResult.signature">
-            <h3 class="font-bold mb-3">标志性元素</h3>
-            <div class="p-4 bg-green-50 rounded-lg text-sm">{{ designResult.signature }}</div>
-          </div>
-
-          <!-- Full Advice -->
-          <div v-if="designResult.fullAdvice">
-            <h3 class="font-bold mb-3">完整建议</h3>
-            <div class="p-4 bg-gray-50 rounded-lg text-sm whitespace-pre-line">{{ designResult.fullAdvice }}</div>
           </div>
         </div>
       </template>
@@ -889,7 +752,7 @@ function getDiagnosisDescription(id, name) {
   return descriptions[id] || `${name} 模式`
 }
 
-// ========== UI 设计建议 ==========
+// ========== UI 设计建议（已移除，保留代码供参考）==========
 const designForm = reactive({
   brief: '',
   directions: [],

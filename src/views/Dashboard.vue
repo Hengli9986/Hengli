@@ -82,21 +82,9 @@
           <p class="text-sm text-gray-500">分析视频播放量、互动率和爆款检测</p>
         </router-link>
         
-        <router-link to="/ai-analysis" class="card card-hover p-6 cursor-pointer">
-          <div class="text-3xl mb-3">🤖</div>
-          <h3 class="font-bold text-lg mb-1">AI 数据洞察</h3>
-          <p class="text-sm text-gray-500">基于真实数据生成运营建议与趋势分析</p>
-        </router-link>
-        
-        <router-link to="/tasks" class="card card-hover p-6 cursor-pointer">
-          <div class="text-3xl mb-3">📋</div>
-          <h3 class="font-bold text-lg mb-1">任务管理</h3>
-          <p class="text-sm text-gray-500">创建待办任务，跟踪运营执行进度</p>
-        </router-link>
-        
         <router-link to="/ai-assistant" class="card card-hover p-6 cursor-pointer">
           <div class="text-3xl mb-3">✨</div>
-          <h3 class="font-bold text-lg mb-1">AI 内容助手</h3>
+          <h3 class="font-bold text-lg mb-1">文案助手</h3>
           <p class="text-sm text-gray-500">违禁词检测、去 AI 味、文案诊断、UI 设计建议</p>
         </router-link>
       </div>
