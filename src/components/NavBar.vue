@@ -67,8 +67,10 @@ const navItems = [
 .nav-bar {
   background: #ffffff;
   border-bottom: 1px solid #eee;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }

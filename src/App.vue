@@ -66,5 +66,6 @@ body {
 
 .main-content {
   min-height: calc(100vh - 56px);
+  padding-top: 56px;
 }
 </style>
