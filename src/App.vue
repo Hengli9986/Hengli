@@ -69,5 +69,6 @@ body {
   padding-top: 56px;
   max-width: 1200px;
   margin: 0 auto;
+  padding-bottom: 20px;  /* 新增：底部留白 */
 }
 </style>

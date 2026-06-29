@@ -69,6 +69,19 @@
           <span class="action-icon">🎬</span>
           <span class="action-text">短视频分析</span>
         </router-link>
+        <!-- 新增3个 -->
+        <router-link to="/ai-assistant" class="action-card">
+          <span class="action-icon">✏️</span>
+          <span class="action-text">文案话题优化</span>
+        </router-link>
+        <router-link to="/tasks" class="action-card">
+          <span class="action-icon">✅</span>
+          <span class="action-text">任务</span>
+        </router-link>
+        <router-link to="/ai-analysis" class="action-card">
+          <span class="action-icon">💡</span>
+          <span class="action-text">AI洞察</span>
+        </router-link>
       </div>
     </div>
 
@@ -258,7 +271,7 @@ onMounted(() => {
 /* Actions */
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);  /* 3列，6个按钮就是2行 */
   gap: 12px;
 }
 
@@ -332,7 +345,7 @@ onMounted(() => {
 
 /* Account Section - Bottom */
 .account-section {
-  margin-top: 40px;
+  margin-top: 60px;  /* 原来是40px，改成60px，往下挪 */
   padding-top: 24px;
 }
 

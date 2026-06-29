@@ -208,15 +208,23 @@ const navItems = [
 /* Responsive */
 @media (max-width: 900px) {
   .nav-desktop {
-    display: none;
+    display: none;  /* 隐藏导航项 */
   }
   
   .nav-mobile-btn {
-    display: block;
+    display: none;  /* 隐藏汉堡按钮 */
   }
   
   .nav-mobile-menu {
-    display: block;
+    display: none;  /* 隐藏抽屉菜单 */
+  }
+  
+  .nav-container {
+    justify-content: center;  /* Logo居中 */
+  }
+  
+  .nav-logo {
+    margin: 0 auto;  /* Logo居中 */
   }
 }
 
