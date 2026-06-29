@@ -6,7 +6,7 @@
     </div>
   </div>
   <div v-else class="app-wrapper">
-    <NavBar v-if="auth.user" />
+    <NavBar />
     <main class="main-content">
       <router-view />
     </main>
