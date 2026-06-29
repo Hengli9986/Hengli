@@ -1,5 +1,5 @@
 <template>
-  <div v-if="auth.loading" class="loading-screen">
+  <div v-if="false" class="loading-screen">
     <div class="loading-content">
       <div class="loading-emoji">⏳</div>
       <div class="loading-text">加载中...</div>
