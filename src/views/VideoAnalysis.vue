@@ -168,7 +168,15 @@ import { exportVideoReportPDF } from '../lib/export'
 
 use([CanvasRenderer, LineChart, BarChart, PieChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
-const dataStore = useDataStore()
+const dataStore = {
+  isLoading: false,
+  importHistory: [],
+  liveSessions: [],
+  videos: [],
+  loadData: () => {},
+  setImportedData: async () => {},
+  removeImportHistoryItem: () => {}
+}
 
 onMounted(() => {
   dataStore.loadData()

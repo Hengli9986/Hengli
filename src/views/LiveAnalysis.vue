@@ -142,13 +142,20 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart, BarChart, ScatterChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components'
 import VChart from 'vue-echarts'
-import { useDataStore } from '../stores/data'
 import { exportLiveReportPDF } from '../lib/export'
 
 use([CanvasRenderer, LineChart, BarChart, ScatterChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
 const router = useRouter()
-const dataStore = useDataStore()
+const dataStore = {
+  isLoading: false,
+  importHistory: [],
+  liveSessions: [],
+  videos: [],
+  loadData: () => {},
+  setImportedData: async () => {},
+  removeImportHistoryItem: () => {}
+}
 
 onMounted(() => {
   dataStore.loadData()
