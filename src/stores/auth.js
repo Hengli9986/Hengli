@@ -8,10 +8,25 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!user.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
 
-  // Initialize auth state from Supabase session
+  // Initialize auth state from Supabase session or guest mode
   async function initAuth() {
     const { data: { session } } = await supabase.auth.getSession()
-    user.value = session?.user ?? null
+    
+    if (session?.user) {
+      user.value = session.user
+    } else if (localStorage.getItem('guest_mode') === 'true') {
+      // Guest mode: create a mock user object
+      user.value = {
+        id: 'guest',
+        email: 'guest@local',
+        user_metadata: {
+          name: localStorage.getItem('guest_name') || '访客'
+        }
+      }
+    } else {
+      user.value = null
+    }
+    
     loading.value = false
 
     // Listen for auth changes

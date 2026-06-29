@@ -751,6 +751,4 @@ function getDiagnosisDescription(id, name) {
   }
   return descriptions[id] || `${name} 模式`
 }
-
-// UI 设计建议代码已移除，保留在代码库中供参考
 </script>
