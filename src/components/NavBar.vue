@@ -1,71 +1,226 @@
 <template>
-  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="flex items-center justify-between h-14">
-        <div class="flex items-center space-x-8">
-          <router-link to="/dashboard" class="text-lg font-bold text-primary">
-            geek抖音服务站
-          </router-link>
-          <div class="hidden md:flex space-x-1">
-            <router-link to="/dashboard" class="nav-link px-3 py-2 rounded-lg" active-class="bg-blue-50 text-primary font-medium">
-              首页
-            </router-link>
-            <router-link to="/import" class="nav-link px-3 py-2 rounded-lg" active-class="bg-blue-50 text-primary font-medium">
-              数据导入
-            </router-link>
-            <router-link to="/live" class="nav-link px-3 py-2 rounded-lg" active-class="bg-blue-50 text-primary font-medium">
-              直播分析
-            </router-link>
-            <router-link to="/video" class="nav-link px-3 py-2 rounded-lg" active-class="bg-blue-50 text-primary font-medium">
-              短视频分析
-            </router-link>
-            <router-link to="/ai-analysis" class="nav-link px-3 py-2 rounded-lg" active-class="bg-blue-50 text-primary font-medium">
-              AI 洞察
-            </router-link>
-            <router-link to="/tasks" class="nav-link px-3 py-2 rounded-lg" active-class="bg-blue-50 text-primary font-medium">
-              任务
-            </router-link>
-            <router-link to="/ai-assistant" class="nav-link px-3 py-2 rounded-lg" active-class="bg-blue-50 text-primary font-medium">
-              文案助手
-            </router-link>
-          </div>
-        </div>
-        
-        <div class="flex items-center space-x-4">
-          <router-link to="/accounts" class="text-sm text-gray-500 hover:text-gray-700">
-            [切换账号]
-          </router-link>
-          <span class="text-sm text-gray-400">{{ auth.user?.user_metadata?.name || auth.user?.name || '访客' }}</span>
-          <button @click="logout" class="text-sm text-gray-400 hover:text-gray-600">
-            退出
-          </button>
-        </div>
+  <nav class="nav-bar">
+    <div class="nav-container">
+      <!-- Logo -->
+      <router-link to="/dashboard" class="nav-logo">
+        <span class="nav-logo-icon">🎯</span>
+        <span class="nav-logo-text">抖音数据站</span>
+      </router-link>
+
+      <!-- Desktop Navigation -->
+      <div class="nav-desktop">
+        <router-link
+          v-for="item in navItems"
+          :key="item.path"
+          :to="item.path"
+          class="nav-item"
+          :class="{ 'nav-item-active': $route.path === item.path }"
+        >
+          <span class="nav-item-icon">{{ item.icon }}</span>
+          <span class="nav-item-text">{{ item.label }}</span>
+          <span v-if="$route.path === item.path" class="nav-indicator"></span>
+        </router-link>
       </div>
+
+      <!-- Mobile Menu Button -->
+      <button class="nav-mobile-btn" @click="mobileOpen = !mobileOpen">
+        <span class="nav-mobile-icon">{{ mobileOpen ? '✕' : '☰' }}</span>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div v-if="mobileOpen" class="nav-mobile-menu">
+      <router-link
+        v-for="item in navItems"
+        :key="item.path"
+        :to="item.path"
+        class="nav-mobile-item"
+        :class="{ 'nav-mobile-active': $route.path === item.path }"
+        @click="mobileOpen = false"
+      >
+        <span class="nav-mobile-icon">{{ item.icon }}</span>
+        <span class="nav-mobile-text">{{ item.label }}</span>
+      </router-link>
     </div>
   </nav>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 
-const router = useRouter()
-const auth = useAuthStore()
+const route = useRoute()
+const mobileOpen = ref(false)
 
-function logout() {
-  auth.logout()
-  router.push('/login')
-}
+const navItems = [
+  { path: '/dashboard', label: '数据仪表盘', icon: '🏠' },
+  { path: '/import', label: '数据导入', icon: '📥' },
+  { path: '/live', label: '直播分析', icon: '📺' },
+  { path: '/video', label: '短视频分析', icon: '🎬' },
+  { path: '/ai-assistant', label: '文案话题优化', icon: '✍️' },
+  { path: '/tasks', label: '任务', icon: '📋' },
+  { path: '/ai-analysis', label: 'AI洞察', icon: '🤖' },
+]
 </script>
 
 <style scoped>
-.nav-link {
-  color: #666;
-  transition: all 0.2s;
-  font-size: 0.875rem;
+.nav-bar {
+  background: #ffffff;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
-.nav-link:hover {
-  color: #0071e3;
-  background-color: #f8fafc;
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo */
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.nav-logo-icon {
+  font-size: 20px;
+}
+
+.nav-logo-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: #E85D4E;
+  letter-spacing: -0.5px;
+}
+
+/* Desktop Nav */
+.nav-desktop {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-item:hover {
+  background: #FFF5F3;
+  color: #E85D4E;
+}
+
+.nav-item-active {
+  color: #E85D4E;
+  font-weight: 600;
+}
+
+.nav-item-icon {
+  font-size: 16px;
+}
+
+.nav-item-text {
+  font-size: 13px;
+}
+
+.nav-indicator {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background: #E85D4E;
+  border-radius: 2px;
+}
+
+/* Mobile */
+.nav-mobile-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  color: #666;
+}
+
+.nav-mobile-menu {
+  display: none;
+  position: absolute;
+  top: 56px;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  padding: 8px 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.nav-mobile-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  text-decoration: none;
+  color: #666;
+  font-size: 15px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.nav-mobile-item:last-child {
+  border-bottom: none;
+}
+
+.nav-mobile-active {
+  color: #E85D4E;
+  font-weight: 600;
+}
+
+.nav-mobile-icon {
+  font-size: 18px;
+  width: 28px;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .nav-desktop {
+    display: none;
+  }
+  
+  .nav-mobile-btn {
+    display: block;
+  }
+  
+  .nav-mobile-menu {
+    display: block;
+  }
+}
+
+@media (max-width: 400px) {
+  .nav-logo-text {
+    font-size: 14px;
+  }
 }
 </style>
