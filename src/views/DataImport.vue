@@ -310,6 +310,7 @@
 
 <script setup>
 import { onMounted, ref, computed } from 'vue'
+import { useDataStore } from '../stores/dataStore'
 import * as XLSX from 'xlsx'
 import Tesseract from 'tesseract.js'
 import { exportAllDataExcel } from '../lib/export'
