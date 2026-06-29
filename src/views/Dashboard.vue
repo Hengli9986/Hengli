@@ -136,14 +136,14 @@ onMounted(() => {
   // Demo stats (replace with real data)
   const demoData = JSON.parse(localStorage.getItem('dashboard_stats') || '{}')
   stats.value = {
-    liveCount: demoData.liveCount || 12,
-    videoCount: demoData.videoCount || 48,
-    gmv: demoData.gmv || 156800,
-    plays: demoData.plays || 2350000,
-    liveTrend: demoData.liveTrend || 15,
-    videoTrend: demoData.videoTrend || 8,
-    gmvTrend: demoData.gmvTrend || 23,
-    playTrend: demoData.playTrend || -5
+    liveCount: demoData.liveCount || 0,
+    videoCount: demoData.videoCount || 0,
+    gmv: demoData.gmv || 0,
+    plays: demoData.plays || 0,
+    liveTrend: demoData.liveTrend || 0,
+    videoTrend: demoData.videoTrend || 0,
+    gmvTrend: demoData.gmvTrend || 0,
+    playTrend: demoData.playTrend || 0
   }
 })
 </script>
