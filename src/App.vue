@@ -67,5 +67,7 @@ body {
 .main-content {
   min-height: calc(100vh - 56px);
   padding-top: 56px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 </style>
