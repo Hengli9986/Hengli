@@ -118,10 +118,17 @@
 <script setup>
 import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { useDataStore } from '../stores/data'
 
 const route = useRoute()
-const dataStore = useDataStore()
+const dataStore = {
+  isLoading: false,
+  importHistory: [],
+  liveSessions: [],
+  videos: [],
+  loadData: () => {},
+  setImportedData: async () => {},
+  removeImportHistoryItem: () => {}
+}
 
 onMounted(() => {
   dataStore.loadData()

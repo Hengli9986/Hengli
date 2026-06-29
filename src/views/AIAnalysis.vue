@@ -266,13 +266,20 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart, BarChart, PieChart, ScatterChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components'
 import VChart from 'vue-echarts'
-import { useDataStore } from '../stores/data'
 import { analyzeVideos, analyzeLiveSessions, analyzeOverall } from '../lib/aiAnalyzer'
 import { exportAIAnalysisPDF } from '../lib/export'
 
 use([CanvasRenderer, LineChart, BarChart, PieChart, ScatterChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
-const dataStore = useDataStore()
+const dataStore = {
+  isLoading: false,
+  importHistory: [],
+  liveSessions: [],
+  videos: [],
+  loadData: () => {},
+  setImportedData: async () => {},
+  removeImportHistoryItem: () => {}
+}
 
 const tabs = [
   { key: 'overall', label: '综合分析' },
