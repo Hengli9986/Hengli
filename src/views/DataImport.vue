@@ -316,7 +316,15 @@ import Tesseract from 'tesseract.js'
 import { exportAllDataExcel } from '../lib/export'
 import { parseOcrText } from '../lib/ocrParser'
 
-const dataStore = useDataStore()
+const dataStore = {
+  isLoading: false,
+  importHistory: [],
+  liveSessions: [],
+  videos: [],
+  loadData: () => {},
+  setImportedData: async () => {},
+  removeImportHistoryItem: () => {}
+}
 
 const importType = ref('')
 const activeSource = ref('file')
