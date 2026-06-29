@@ -10,6 +10,10 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Initialize auth state from Supabase session or guest mode
   async function initAuth() {
+    // 3秒后强制结束loading，防止Supabase连接卡住
+    setTimeout(() => {
+      loading.value = false
+  }, 3000)
     const { data: { session } } = await supabase.auth.getSession()
     
     if (session?.user) {
