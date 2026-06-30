@@ -69,6 +69,19 @@
           <span class="action-icon">🎬</span>
           <span class="action-text">短视频分析</span>
         </router-link>
+        <!-- 新增3个 -->
+        <router-link to="/ai-assistant" class="action-card">
+          <span class="action-icon">✏️</span>
+          <span class="action-text">文案话题优化</span>
+        </router-link>
+        <router-link to="/tasks" class="action-card">
+          <span class="action-icon">✅</span>
+          <span class="action-text">任务</span>
+        </router-link>
+        <router-link to="/ai-analysis" class="action-card">
+          <span class="action-icon">💡</span>
+          <span class="action-text">AI洞察</span>
+        </router-link>
       </div>
     </div>
 
@@ -149,111 +162,66 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* ===== 设计系统 ===== */
-:root {
-  --bg-warm: #F8F7F4;
-  --bg-card: #FFFFFF;
-  --primary: #E85D4E;
-  --primary-light: #FFF5F3;
-  --text-main: #2D2D2D;
-  --text-secondary: #888888;
-  --text-tertiary: #AAAAAA;
-  --border: #F0EEEA;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.03), 0 1px 8px rgba(0,0,0,0.02);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.03);
-  --shadow-hover: 0 8px 24px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
-  --radius-sm: 12px;
-  --radius-md: 16px;
-  --radius-lg: 20px;
-}
-
-/* ===== 页面容器 ===== */
 .dashboard {
-  max-width: 960px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 32px 24px 100px;
-  background: var(--bg-warm);
+  padding: 24px 16px 80px;
+  background: #F8F7F4;
   min-height: calc(100vh - 56px);
 }
 
-/* ===== 页面标题 ===== */
+/* Header */
 .dashboard-header {
-  margin-bottom: 28px;
-  padding: 0 4px;
+  margin-bottom: 24px;
 }
 
 .dashboard-title {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--text-main);
-  margin: 0 0 6px;
-  letter-spacing: -0.8px;
-  line-height: 1.2;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2D2D2D;
+  margin: 0 0 4px;
+  letter-spacing: -0.5px;
 }
 
 .dashboard-subtitle {
   font-size: 14px;
-  color: var(--text-secondary);
+  color: #999;
   margin: 0;
-  font-weight: 400;
 }
 
-/* ===== 核心指标卡片 ===== */
+/* Metrics Grid */
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 40px;
+  gap: 12px;
+  margin-bottom: 32px;
 }
 
 .metric-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-md);
-  padding: 24px 20px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 16px;
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.metric-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: transparent;
-  transition: background 0.3s;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .metric-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-hover);
-}
-
-.metric-card:hover::before {
-  background: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .metric-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-sm);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 20px;
   flex-shrink: 0;
-  transition: transform 0.3s;
-}
-
-.metric-card:hover .metric-icon {
-  transform: scale(1.1);
 }
 
 .metric-icon-live { background: #FFF5F3; }
@@ -267,142 +235,90 @@ onMounted(() => {
 }
 
 .metric-value {
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--text-main);
-  line-height: 1.15;
-  margin-bottom: 4px;
-  letter-spacing: -0.5px;
-  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  font-weight: 700;
+  color: #2D2D2D;
+  line-height: 1.2;
+  margin-bottom: 2px;
 }
 
 .metric-label {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-  font-weight: 500;
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 4px;
 }
 
 .metric-trend {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
   font-size: 12px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: transparent;
-  transition: background 0.2s;
+  font-weight: 600;
 }
 
-.trend-up {
-  color: #00B894;
-  background: #E8F8F5;
-}
+.trend-up { color: #00C9A7; }
+.trend-down { color: #E85D4E; }
 
-.trend-down {
-  color: #E85D4E;
-  background: #FFF5F3;
-}
-
-/* ===== 区块标题 ===== */
+/* Section */
 .section {
-  margin-bottom: 36px;
+  margin-bottom: 32px;
 }
 
 .section-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-main);
-  margin: 0 0 16px;
-  padding: 0 4px;
-  letter-spacing: -0.3px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2D2D2D;
+  margin: 0 0 12px;
 }
 
-/* ===== 快捷操作 ===== */
+/* Actions */
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(3, 1fr);  /* 3列，6个按钮就是2行 */
+  gap: 12px;
 }
 
 .action-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-sm);
-  padding: 20px 16px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   text-decoration: none;
-  color: var(--text-secondary);
+  color: #666;
   font-size: 13px;
-  font-weight: 600;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.action-card::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%) scaleX(0);
-  width: 40%;
-  height: 3px;
-  background: var(--primary);
-  border-radius: 3px 3px 0 0;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: all 0.2s;
 }
 
 .action-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-  color: var(--primary);
-  border-color: #F5D0CB;
-}
-
-.action-card:hover::after {
-  transform: translateX(-50%) scaleX(1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  color: #E85D4E;
 }
 
 .action-icon {
-  font-size: 32px;
-  transition: transform 0.3s;
-}
-
-.action-card:hover .action-icon {
-  transform: scale(1.15);
+  font-size: 28px;
 }
 
 .action-text {
   font-size: 13px;
-  font-weight: 600;
 }
 
-/* ===== 历史记录 ===== */
+/* History */
 .history-list {
-  background: var(--bg-card);
-  border-radius: var(--radius-sm);
+  background: #fff;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
 .history-item {
   display: flex;
   align-items: center;
-  padding: 14px 20px;
-  border-bottom: 1px solid #F8F7F4;
-  font-size: 14px;
-  transition: background 0.15s;
-}
-
-.history-item:hover {
-  background: #FDFCFB;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 13px;
 }
 
 .history-item:last-child {
@@ -411,71 +327,53 @@ onMounted(() => {
 
 .history-type {
   flex: 1;
-  color: var(--text-main);
-  font-weight: 600;
-}
-
-.history-date {
-  color: var(--text-tertiary);
-  font-size: 13px;
-  margin-right: 16px;
+  color: #2D2D2D;
   font-weight: 500;
 }
 
-.history-count {
-  color: var(--primary);
-  font-weight: 700;
-  font-size: 13px;
-  padding: 2px 10px;
-  background: var(--primary-light);
-  border-radius: 6px;
+.history-date {
+  color: #999;
+  font-size: 12px;
+  margin-right: 12px;
 }
 
-/* ===== 账号管理（底部） ===== */
+.history-count {
+  color: #E85D4E;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Account Section - Bottom */
 .account-section {
-  margin-top: 60px;
-  padding-top: 32px;
+  margin-top: 60px;  /* 原来是40px，改成60px，往下挪 */
+  padding-top: 24px;
 }
 
 .account-divider {
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--border), transparent);
-  margin-bottom: 24px;
-  border-radius: 1px;
+  height: 1px;
+  background: #eee;
+  margin-bottom: 20px;
 }
 
 .account-info {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 20px;
-  background: var(--bg-card);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border);
-  transition: all 0.3s;
-}
-
-.account-info:hover {
-  box-shadow: var(--shadow-md);
-  border-color: #E8E4DF;
+  gap: 12px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
 .account-avatar {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--primary-light);
+  background: #FFF5F3;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-  transition: transform 0.3s;
-}
-
-.account-info:hover .account-avatar {
-  transform: scale(1.05);
+  font-size: 18px;
 }
 
 .account-details {
@@ -483,106 +381,72 @@ onMounted(() => {
 }
 
 .account-name {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-main);
-  margin-bottom: 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2D2D2D;
 }
 
 .account-role {
-  font-size: 13px;
-  color: var(--text-tertiary);
-  font-weight: 500;
+  font-size: 12px;
+  color: #999;
 }
 
 .account-btn {
-  padding: 10px 18px;
-  background: var(--bg-warm);
-  border-radius: 10px;
+  padding: 8px 16px;
+  background: #f5f5f5;
+  border-radius: 8px;
   font-size: 13px;
-  color: var(--text-secondary);
+  color: #666;
   text-decoration: none;
-  font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid var(--border);
-  white-space: nowrap;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
 .account-btn:hover {
-  background: var(--primary);
+  background: #E85D4E;
   color: #fff;
-  border-color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(232, 93, 78, 0.25);
 }
 
-/* ===== 响应式 ===== */
+/* Responsive */
 @media (max-width: 768px) {
-  .dashboard {
-    padding: 24px 16px 80px;
-  }
-  
-  .dashboard-title {
-    font-size: 24px;
-  }
-  
   .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 10px;
   }
   
   .metric-card {
-    padding: 18px 14px;
+    padding: 16px 12px;
   }
   
   .metric-value {
-    font-size: 22px;
-  }
-  
-  .metric-icon {
-    width: 38px;
-    height: 38px;
     font-size: 18px;
   }
   
   .actions-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    gap: 8px;
   }
   
   .action-card {
-    padding: 16px 10px;
+    padding: 12px 8px;
   }
   
   .action-icon {
-    font-size: 26px;
+    font-size: 24px;
   }
   
   .action-text {
     font-size: 12px;
   }
-  
-  .account-section {
-    margin-top: 48px;
-  }
 }
 
 @media (max-width: 400px) {
   .dashboard {
-    padding: 20px 12px 80px;
+    padding: 16px 12px 80px;
   }
   
   .dashboard-title {
-    font-size: 22px;
-  }
-  
-  .metrics-grid {
-    gap: 10px;
-  }
-  
-  .metric-card {
-    padding: 14px 12px;
-    gap: 10px;
+    font-size: 20px;
   }
   
   .metric-icon {
@@ -592,53 +456,11 @@ onMounted(() => {
   }
   
   .metric-value {
-    font-size: 18px;
+    font-size: 16px;
   }
   
   .metric-label {
     font-size: 11px;
-  }
-  
-  .metric-trend {
-    font-size: 11px;
-    padding: 2px 6px;
-  }
-  
-  .actions-grid {
-    gap: 8px;
-  }
-  
-  .action-card {
-    padding: 12px 8px;
-    gap: 6px;
-  }
-  
-  .action-icon {
-    font-size: 22px;
-  }
-  
-  .action-text {
-    font-size: 11px;
-  }
-  
-  .section-title {
-    font-size: 16px;
-  }
-  
-  .account-info {
-    padding: 14px;
-    gap: 10px;
-  }
-  
-  .account-avatar {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
-  }
-  
-  .account-btn {
-    padding: 8px 12px;
-    font-size: 12px;
   }
 }
 </style>
