@@ -15,7 +15,7 @@
           <span class="brand-icon">🎯</span>
         </div>
         <h1 class="brand-title">
-          <span class="gradient-text">抖音数据站</span>
+          <span class="gradient-text">数据站</span>
         </h1>
         <p class="brand-subtitle">团队数据助手 · 智能分析</p>
       </div>
@@ -223,7 +223,7 @@
       </div>
       
       <!-- Footer -->
-      <p class="login-footer">抖音数据站 · 团队数据助手</p>
+      <p class="login-footer">数据站 · 团队数据助手</p>
     </div>
   </div>
 </template>
