@@ -131,12 +131,12 @@
             </span>
           </div>
         </div>
-        <router-link to="/accounts" class="account-btn">
+        <button class="account-btn" @click="handleSwitchAccount">
           切换账号
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="9 18 15 12 9 6"/>
           </svg>
-        </router-link>
+        </button>
       </div>
     </div>
   </div>
@@ -144,8 +144,10 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
+const router = useRouter()
 const auth = useAuthStore()
 
 const stats = ref({
@@ -175,12 +177,33 @@ const actions = [
   { key: 'ai', path: '/ai-assistant', label: '文案话题优化', icon: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>' },
   { key: 'task', path: '/tasks', label: '任务', icon: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' },
   { key: 'ai', path: '/ai-analysis', label: 'AI洞察', icon: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>' },
-]
+])
 
 function formatNumber(n) {
   if (n >= 10000) return (n / 10000).toFixed(1) + 'w'
   if (n >= 1000) return (n / 1000).toFixed(1) + 'k'
   return n.toString()
+}
+
+async function handleSwitchAccount() {
+  // 清除访客模式数据
+  localStorage.removeItem('guest_mode')
+  localStorage.removeItem('guest_user')
+  localStorage.removeItem('guest_name')
+  
+  // 调用 Supabase 登出
+  try {
+    await auth.logout()
+  } catch (err) {
+    // 忽略登出错误，继续跳转
+    console.log('Logout error:', err)
+  }
+  
+  // 清空 auth store 中的用户
+  auth.user = null
+  
+  // 跳转到登录页
+  router.push('/login')
 }
 
 onMounted(() => {
@@ -709,12 +732,13 @@ onMounted(() => {
   border-radius: 10px;
   font-size: 13px;
   color: #4B5563;
-  text-decoration: none;
   font-weight: 600;
   transition: all 0.25s ease;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  border: none;
+  cursor: pointer;
 }
 
 .account-btn:hover {
