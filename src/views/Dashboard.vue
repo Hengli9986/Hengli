@@ -131,7 +131,7 @@
             </span>
           </div>
         </div>
-        <button class="account-btn" @click="handleSwitchAccount">
+        <router-link to="/account-switch" class="account-btn">
           切换账号
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="9 18 15 12 9 6"/>
@@ -203,7 +203,7 @@ async function handleSwitchAccount() {
   auth.user = null
   
   // 跳转到登录页
-  router.push('/login')
+  router.push('/account-switch')
 }
 
 onMounted(() => {
