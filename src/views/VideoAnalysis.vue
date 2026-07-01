@@ -252,6 +252,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useDataStore } from '../stores/data'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart, BarChart, PieChart } from 'echarts/charts'
@@ -261,15 +262,7 @@ import { exportVideoReportPDF } from '../lib/export'
 
 use([CanvasRenderer, LineChart, BarChart, PieChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
-const dataStore = {
-  isLoading: false,
-  importHistory: [],
-  liveSessions: [],
-  videos: [],
-  loadData: () => {},
-  setImportedData: async () => {},
-  removeImportHistoryItem: () => {}
-}
+const dataStore = useDataStore()
 
 const showAutoImport = ref(false)
 

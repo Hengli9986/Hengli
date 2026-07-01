@@ -230,6 +230,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useDataStore } from '../stores/data'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart, BarChart, ScatterChart } from 'echarts/charts'
@@ -240,15 +241,7 @@ import { exportLiveReportPDF } from '../lib/export'
 use([CanvasRenderer, LineChart, BarChart, ScatterChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
 const router = useRouter()
-const dataStore = {
-  isLoading: false,
-  importHistory: [],
-  liveSessions: [],
-  videos: [],
-  loadData: () => {},
-  setImportedData: async () => {},
-  removeImportHistoryItem: () => {}
-}
+const dataStore = useDataStore()
 
 const showAutoImport = ref(false)
 

@@ -387,6 +387,7 @@
       class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity"
     >
       ✅ 导入成功！{{ successCount }} 条数据已保存
+      <p class="text-xs mt-1">{{ importType === 'live' ? '正在跳转到直播分析...' : '正在跳转到短视频分析...' }}</p>
     </div>
     </template>
   </div>
@@ -397,20 +398,13 @@ import { onMounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import * as XLSX from 'xlsx'
 import Tesseract from 'tesseract.js'
+import { useDataStore } from '../stores/data'
 import { exportAllDataExcel } from '../lib/export'
 import { parseOcrText } from '../lib/ocrParser'
 
 const route = useRoute()
 const router = useRouter()
-const dataStore = {
-  isLoading: false,
-  importHistory: [],
-  liveSessions: [],
-  videos: [],
-  loadData: () => {},
-  setImportedData: async () => {},
-  removeImportHistoryItem: () => {}
-}
+const dataStore = useDataStore()
 
 const importType = ref('')
 const activeSource = ref('file')
@@ -839,9 +833,15 @@ async function confirmImport() {
     
     clearPreview()
     
+    // Auto-redirect to analysis page after successful import
     setTimeout(() => {
       showSuccess.value = false
-    }, 3000)
+      if (importType.value === 'live') {
+        router.push('/live')
+      } else if (importType.value === 'video') {
+        router.push('/video')
+      }
+    }, 2000)
   } catch (err) {
     error.value = err.message || '导入失败'
   } finally {
