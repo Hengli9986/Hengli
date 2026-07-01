@@ -131,7 +131,7 @@
             </span>
           </div>
         </div>
-        <router-link to="/account-switch" class="account-btn">
+        <button class="account-btn" @click="handleSwitchAccount">
           切换账号
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="9 18 15 12 9 6"/>
@@ -202,7 +202,7 @@ async function handleSwitchAccount() {
   // 清空 auth store 中的用户
   auth.user = null
   
-  // 跳转到登录页
+  // 跳转到账号切换页面
   router.push('/account-switch')
 }
 
