@@ -106,9 +106,9 @@
           <div class="account-name">{{ auth.user?.user_metadata?.name || auth.user?.name || '访客' }}</div>
           <div class="account-role">{{ auth.user?.id === 'guest' ? '免登录模式' : '已登录' }}</div>
         </div>
-        <router-link to="/accounts" class="account-btn">
+        <button class="account-btn" @click="handleLogout">
           切换账号 →
-        </router-link>
+        </button>
       </div>
     </div>
   </div>
@@ -116,7 +116,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+
+const router = useRouter()
 
 const auth = useAuthStore()
 
@@ -137,6 +140,14 @@ function formatNumber(n) {
   if (n >= 10000) return (n / 10000).toFixed(1) + 'w'
   if (n >= 1000) return (n / 1000).toFixed(1) + 'k'
   return n.toString()
+}
+
+function handleLogout() {
+  localStorage.removeItem('guest_mode')
+  localStorage.removeItem('guest_user')
+  localStorage.removeItem('guest_name')
+  auth.logout()
+  router.push('/login')
 }
 
 onMounted(() => {
