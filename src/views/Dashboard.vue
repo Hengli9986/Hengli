@@ -177,7 +177,7 @@ const actions = [
   { key: 'ai', path: '/ai-assistant', label: '文案话题优化', icon: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>' },
   { key: 'task', path: '/tasks', label: '任务', icon: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' },
   { key: 'ai', path: '/ai-analysis', label: 'AI洞察', icon: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>' },
-])
+]
 
 function formatNumber(n) {
   if (n >= 10000) return (n / 10000).toFixed(1) + 'w'
