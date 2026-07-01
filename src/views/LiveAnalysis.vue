@@ -31,9 +31,101 @@
       <div class="text-6xl mb-4">📺</div>
       <h3 class="text-xl font-bold mb-2">暂无直播数据</h3>
       <p class="text-gray-500 mb-6">导入直播数据后，即可查看分析看板</p>
-      <router-link to="/import" class="btn-primary">
-        去导入数据
-      </router-link>
+      <div class="flex items-center justify-center gap-4 flex-wrap">
+        <router-link to="/import" class="btn-primary">
+          去导入数据
+        </router-link>
+        <button @click="showAutoImport = true" class="btn-secondary">
+          ⚡ 自动化导入
+        </button>
+      </div>
+      <p class="text-xs text-gray-400 mt-4">💡 自动化导入仅支持电脑版浏览器</p>
+    </div>
+
+    <!-- Auto Import Modal -->
+    <div v-if="showAutoImport" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,0.5);" @click.self="showAutoImport = false">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E85D4E] to-[#FF8A7A] flex items-center justify-center text-white text-lg">⚡</div>
+            <div>
+              <h3 class="font-bold text-lg">自动化导入</h3>
+              <p class="text-xs text-gray-400">一键从抖音后台提取数据</p>
+            </div>
+          </div>
+          <button @click="showAutoImport = false" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6">
+          <!-- PC Only Warning -->
+          <div class="flex items-start gap-3 p-3 bg-amber-50 rounded-lg mb-6">
+            <span class="text-lg">💻</span>
+            <div>
+              <p class="text-sm font-medium text-amber-800">仅支持电脑版浏览器</p>
+              <p class="text-xs text-amber-600">请使用 Chrome / Edge 浏览器操作</p>
+            </div>
+          </div>
+
+          <!-- Bookmarklet Drag Zone -->
+          <div class="bg-gradient-to-br from-[#FFF5F3] to-[#FFFBF7] border-2 border-dashed border-[#E85D4E] rounded-xl p-6 text-center mb-6">
+            <p class="text-sm font-medium text-gray-700 mb-3">Step 1：将下方按钮拖拽到浏览器书签栏</p>
+            <a
+              :href="bookmarkletCode"
+              class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#E85D4E] to-[#D45040] text-white font-bold rounded-xl shadow-lg cursor-move hover:shadow-xl transition-all"
+              onclick="alert('请将此按钮拖拽到书签栏，不要点击！'); return false;"
+            >
+              <span>🎯</span>
+              <span>提取到数据站</span>
+            </a>
+            <p class="text-xs text-[#E85D4E] mt-3 font-medium">← 按住鼠标左键，拖到浏览器顶部的书签栏</p>
+            <p class="text-xs text-gray-400 mt-1">看不到书签栏？按 Ctrl + Shift + B 显示</p>
+          </div>
+
+          <!-- Steps -->
+          <div class="space-y-4">
+            <p class="text-sm font-medium text-gray-700">Step 2：按以下步骤操作</p>
+
+            <div class="flex gap-3">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#E85D4E] to-[#FF8A7A] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">1</div>
+              <p class="text-sm text-gray-600">打开 <a href="https://fxg.jinritemai.com" target="_blank" class="text-[#E85D4E] font-medium underline">抖音创作者服务中心</a> 并登录</p>
+            </div>
+
+            <div class="flex gap-3">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#E85D4E] to-[#FF8A7A] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">2</div>
+              <p class="text-sm text-gray-600">进入「直播数据」→「直播复盘」页面</p>
+            </div>
+
+            <div class="flex gap-3">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#E85D4E] to-[#FF8A7A] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">3</div>
+              <p class="text-sm text-gray-600">点击书签栏上的 <span class="font-bold text-[#E85D4E]">🎯 提取到数据站</span></p>
+            </div>
+
+            <div class="flex gap-3">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#E85D4E] to-[#FF8A7A] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">4</div>
+              <p class="text-sm text-gray-600">右上角弹出面板，确认提取到的数据</p>
+            </div>
+
+            <div class="flex gap-3">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#E85D4E] to-[#FF8A7A] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">5</div>
+              <p class="text-sm text-gray-600">点击 <span class="font-bold">📤 发送</span>，数据自动导入本网站</p>
+            </div>
+
+            <div class="flex gap-3">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#E85D4E] to-[#FF8A7A] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">6</div>
+              <p class="text-sm text-gray-600">自动跳转回来，数据已填好，直接查看分析</p>
+            </div>
+          </div>
+
+          <!-- Tip -->
+          <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+            <p class="text-xs text-gray-500">
+              <span class="font-bold">💡 提示：</span>此功能通过浏览器书签工具（Bookmarklet）读取抖音后台页面数据，数据仅保存在当前浏览器中，不会上传到任何服务器。
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div v-else>
@@ -135,7 +227,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -156,6 +248,76 @@ const dataStore = {
   setImportedData: async () => {},
   removeImportHistoryItem: () => {}
 }
+
+const showAutoImport = ref(false)
+
+// Bookmarklet code - extracts data from Douyin live review page and sends to 060224.top
+const bookmarkletCode = ref(`javascript:(function(){
+  var SITE='https://060224.top';
+  function showPanel(data){
+    var old=document.getElementById('ds-panel');
+    if(old)old.remove();
+    var p=document.createElement('div');
+    p.id='ds-panel';
+    p.style.cssText='position:fixed;top:20px;right:20px;width:360px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:16px;padding:20px;z-index:999999;color:#fff;font-family:system-ui,sans-serif;box-shadow:0 20px 60px rgba(0,0,0,0.4);';
+    var hasData=data&&data.length>0;
+    var netChange=hasData?data.reduce(function(s,d){return s+(d.enter-d.leave)},0):0;
+    p.innerHTML='<style>@keyframes dsIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}.ds-h{display:flex;align-items:center;gap:10px;margin-bottom:14px}.ds-lg{width:36px;height:36px;background:linear-gradient(135deg,#E85D4E,#FF8A7A);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}.ds-t{font-size:15px;font-weight:700;margin:0}.ds-s{font-size:11px;color:rgba(255,255,255,0.5);margin:0}.ds-st{display:flex;align-items:center;gap:8px;margin:10px 0;padding:10px;border-radius:10px;font-size:12px;background:'+(hasData?'rgba(0,201,167,0.15);color:#00C9A7':'rgba(255,184,0,0.15);color:#FFB800')+';}.ds-b{width:100%;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:6px}.ds-b1{background:linear-gradient(135deg,#E85D4E,#D45040);color:#fff}.ds-b1:hover{transform:translateY(-1px)}.ds-b2{background:rgba(255,255,255,0.1);color:#fff;margin-top:4px}.ds-x{position:absolute;top:10px;right:14px;background:none;border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer}</style><button class=ds-x onclick="document.getElementById(\'ds-panel\').remove()">✕</button><div class=ds-h><div class=ds-lg>🎯</div><div><div class=ds-t>数据站</div><div class=ds-s>数据提取工具</div></div></div><div class=ds-st>'+(hasData?'✓ 提取到 '+data.length+' 分钟数据，净变化 '+netChange+' 人':'⏳ 未检测到趋势图表数据')+'</div>'+(hasData?'<button class="ds-b ds-b1" id=ds-send>📤 发送到 060224.top</button>':'<div style="font-size:11px;color:rgba(255,255,255,0.5);margin:8px 0">提示：请打开抖音直播复盘页面，确保趋势明细图表已加载</div>')+'<button class="ds-b ds-b2" onclick="document.getElementById(\'ds-panel\').remove()">关闭</button>';
+    document.body.appendChild(p);
+    if(hasData){
+      document.getElementById('ds-send').onclick=function(){
+        var json=JSON.stringify({source:'bookmarklet',timestamp:Date.now(),data:data,url:location.href});
+        var enc=btoa(encodeURIComponent(json));
+        window.open(SITE+'/import?source=bookmarklet&data='+enc,'_blank');
+      };
+    }
+  }
+  function extractData(){
+    var extracted=[];
+    if(typeof echarts!=='undefined'){
+      var inst=echarts.getInstanceByDom(document.querySelector('[class*=chart]'));
+      if(!inst){
+        var charts=document.querySelectorAll('div');
+        for(var i=0;i<charts.length;i++){
+          var c=echarts.getInstanceByDom(charts[i]);
+          if(c){inst=c;break;}
+        }
+      }
+      if(inst){
+        var opt=inst.getOption();
+        var s=opt.series;
+        if(s&&s.length>0){
+          var online=s[0].data||[];
+          var enter=s[1]?s[1].data:[];
+          var leave=s[2]?s[2].data:[];
+          for(var j=0;j<online.length;j++){
+            var v=online[j];
+            extracted.push({
+              minute:j,
+              online:(v&&v.value!==undefined)?v.value:v||0,
+              enter:(enter[j]&&(enter[j].value!==undefined))?enter[j].value:enter[j]||0,
+              leave:(leave[j]&&(leave[j].value!==undefined))?leave[j].value:leave[j]||0
+            });
+          }
+        }
+      }
+    }
+    if(extracted.length===0){
+      var rows=document.querySelectorAll('table tr');
+      rows.forEach(function(r,i){
+        if(i===0)return;
+        var cells=r.querySelectorAll('td');
+        if(cells.length>=3){
+          var t=cells[0].textContent.trim();
+          var n=parseInt(cells[1].textContent.replace(/[^0-9]/g,''))||0;
+          extracted.push({minute:i-1,time:t,online:n,enter:0,leave:0});
+        }
+      });
+    }
+    return extracted;
+  }
+  showPanel(extractData());
+})();`)
 
 onMounted(() => {
   dataStore.loadData()
