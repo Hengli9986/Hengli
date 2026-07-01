@@ -65,20 +65,32 @@ const navItems = [
 
 <style scoped>
 .nav-bar {
-  background: #ffffff;
-  border-bottom: 1px solid #eee;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: all 0.3s ease;
+}
+
+.nav-bar::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,93,78,0.15), transparent);
 }
 
 .nav-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 20px;
   height: 56px;
   display: flex;
   align-items: center;
@@ -89,19 +101,28 @@ const navItems = [
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   text-decoration: none;
   flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.nav-logo:hover {
+  transform: scale(1.02);
 }
 
 .nav-logo-icon {
-  font-size: 20px;
+  font-size: 22px;
+  filter: drop-shadow(0 2px 4px rgba(232,93,78,0.2));
 }
 
 .nav-logo-text {
-  font-size: 16px;
-  font-weight: 700;
-  color: #E85D4E;
+  font-size: 17px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #E85D4E 0%, #FF8A7A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   letter-spacing: -0.5px;
 }
 
@@ -109,36 +130,42 @@ const navItems = [
 .nav-desktop {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .nav-item {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   padding: 8px 14px;
-  border-radius: 8px;
+  border-radius: 10px;
   text-decoration: none;
-  color: #666;
-  font-size: 14px;
+  color: #8E8E93;
+  font-size: 13px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
 }
 
 .nav-item:hover {
-  background: #FFF5F3;
+  background: rgba(232,93,78,0.08);
   color: #E85D4E;
 }
 
 .nav-item-active {
+  background: linear-gradient(135deg, rgba(232,93,78,0.1) 0%, rgba(232,93,78,0.05) 100%);
   color: #E85D4E;
   font-weight: 600;
 }
 
 .nav-item-icon {
   font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+.nav-item:hover .nav-item-icon {
+  transform: scale(1.15);
 }
 
 .nav-item-text {
@@ -147,13 +174,19 @@ const navItems = [
 
 .nav-indicator {
   position: absolute;
-  bottom: -2px;
+  bottom: 4px;
   left: 50%;
   transform: translateX(-50%);
-  width: 20px;
+  width: 16px;
   height: 3px;
-  background: #E85D4E;
+  background: linear-gradient(90deg, #E85D4E, #FF8A7A);
   border-radius: 2px;
+  animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 /* Mobile */
@@ -163,8 +196,15 @@ const navItems = [
   border: none;
   font-size: 20px;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   color: #666;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.nav-mobile-btn:hover {
+  background: rgba(232,93,78,0.08);
+  color: #E85D4E;
 }
 
 .nav-mobile-menu {
@@ -173,25 +213,39 @@ const navItems = [
   top: 56px;
   left: 0;
   right: 0;
-  background: #fff;
-  border-bottom: 1px solid #eee;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
   padding: 8px 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .nav-mobile-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 12px 0;
   text-decoration: none;
   color: #666;
   font-size: 15px;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  transition: all 0.2s ease;
 }
 
 .nav-mobile-item:last-child {
   border-bottom: none;
+}
+
+.nav-mobile-item:hover {
+  color: #E85D4E;
+  padding-left: 8px;
 }
 
 .nav-mobile-active {
@@ -208,29 +262,38 @@ const navItems = [
 /* Responsive */
 @media (max-width: 900px) {
   .nav-desktop {
-    display: none;  /* 隐藏导航项 */
+    display: none;
   }
   
   .nav-mobile-btn {
-    display: none;  /* 隐藏汉堡按钮 */
+    display: block;
   }
   
   .nav-mobile-menu {
-    display: none;  /* 隐藏抽屉菜单 */
+    display: block;
   }
   
   .nav-container {
-    justify-content: center;  /* Logo居中 */
+    justify-content: center;
   }
   
   .nav-logo {
-    margin: 0 auto;  /* Logo居中 */
+    margin: 0 auto;
+  }
+  
+  .nav-mobile-btn {
+    position: absolute;
+    right: 16px;
   }
 }
 
 @media (max-width: 400px) {
   .nav-logo-text {
-    font-size: 14px;
+    font-size: 15px;
+  }
+  
+  .nav-container {
+    padding: 0 12px;
   }
 }
 </style>
