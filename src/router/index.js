@@ -20,6 +20,7 @@ const router = createRouter({
     { path: '/live/:id', name: 'LiveDetail', component: LiveDetail, meta: { requiresAuth: true } },
     { path: '/video', name: 'VideoAnalysis', component: VideoAnalysis, meta: { requiresAuth: true } },
     { path: '/accounts', name: 'AccountManage', component: AccountManage, meta: { requiresAuth: true } },
+    { path: '/account-switch', name: 'AccountSwitch', component: () => import('../views/AccountSwitch.vue') },
     { path: '/ai-assistant', name: 'AIAssistant', component: AIAssistant, meta: { requiresAuth: true } },
     { path: '/tasks', name: 'Tasks', component: () => import('../views/Tasks.vue'), meta: { requiresAuth: true } },
     { path: '/ai-analysis', name: 'AIAnalysis', component: () => import('../views/AIAnalysis.vue'), meta: { requiresAuth: true } },
