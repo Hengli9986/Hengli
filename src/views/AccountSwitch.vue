@@ -61,8 +61,10 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+
 const router = useRouter()
 const auth = useAuthStore()
+
 function reenterGuest() {
   const guestUser = { id: 'guest', email: 'guest@local', user_metadata: { name: '访客' }, role: 'guest' }
   localStorage.setItem('guest_mode', 'true')
