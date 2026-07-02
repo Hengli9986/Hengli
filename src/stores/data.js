@@ -75,19 +75,24 @@ export const useDataStore = defineStore('data', () => {
 
   // ========== Actions ==========
   async function loadData() {
-    const authStore = useAuthStore()
-    if (!authStore.user) return
-
     isLoading.value = true
     error.value = null
 
-    // Guest mode: load from localStorage
+    // Guest mode: load from localStorage (does NOT require login)
     if (isGuestMode()) {
       loadGuestData()
       isLoading.value = false
       return
     }
 
+    // Not guest mode and not logged in: nothing to load
+    const authStore = useAuthStore()
+    if (!authStore.user) {
+      isLoading.value = false
+      return
+    }
+
+    // Supabase mode: load from cloud
     try {
       // Load live sessions
       const { data: liveData, error: liveError } = await supabase
@@ -134,20 +139,24 @@ export const useDataStore = defineStore('data', () => {
   }
 
   async function setImportedData(data, type) {
-    const authStore = useAuthStore()
-    if (!authStore.user) throw new Error('请先登录')
-
     isLoading.value = true
     error.value = null
     currentImportType.value = type
 
-    // Guest mode: save to localStorage only
-    if (isGuestMode()) {
+    const authStore = useAuthStore()
+
+    // Guest mode (or not logged in): save to localStorage, no login required
+    if (isGuestMode() || !authStore.user) {
+      // Auto-enable guest mode if user is not logged in
+      if (!authStore.user && !isGuestMode()) {
+        localStorage.setItem('guest_mode', 'true')
+      }
       saveGuestData(data, type)
       isLoading.value = false
       return
     }
 
+    // Supabase mode: save to cloud (user is logged in and not guest)
     try {
       // Transform data to match schema
       const records = data.map(row => {
@@ -208,10 +217,7 @@ export const useDataStore = defineStore('data', () => {
   }
 
   async function clearData() {
-    const authStore = useAuthStore()
-    if (!authStore.user) return
-
-    // Guest mode: clear localStorage
+    // Guest mode: clear localStorage (does NOT require login)
     if (isGuestMode()) {
       localStorage.removeItem('guest_live_sessions')
       localStorage.removeItem('guest_videos')
@@ -221,6 +227,9 @@ export const useDataStore = defineStore('data', () => {
       importHistory.value = []
       return
     }
+
+    const authStore = useAuthStore()
+    if (!authStore.user) return
 
     isLoading.value = true
     try {
@@ -236,6 +245,15 @@ export const useDataStore = defineStore('data', () => {
   }
 
   async function removeImportHistoryItem(id) {
+    // Guest mode: remove from localStorage
+    if (isGuestMode()) {
+      const history = JSON.parse(localStorage.getItem('guest_import_history') || '[]')
+      const filtered = history.filter(h => h.id !== id)
+      localStorage.setItem('guest_import_history', JSON.stringify(filtered))
+      importHistory.value = filtered
+      return
+    }
+
     const { error: deleteError } = await supabase.from('import_logs').delete().eq('id', id)
     if (deleteError) {
       console.error('Failed to delete import log:', deleteError)
@@ -314,7 +332,7 @@ export const useDataStore = defineStore('data', () => {
       })
       localStorage.setItem('guest_import_history', JSON.stringify(history.slice(0, 20)))
 
-      // Reload
+      // Reload into reactive state
       loadGuestData()
     } catch (e) {
       console.error('Failed to save guest data:', e)
