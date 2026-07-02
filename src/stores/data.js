@@ -76,135 +76,143 @@ export const useDataStore = defineStore('data', () => {
   // ========== Actions ==========
   async function loadData() {
     const authStore = useAuthStore()
-    if (!authStore.user) return
 
     isLoading.value = true
     error.value = null
 
-    // Guest mode: load from localStorage
-    if (isGuestMode()) {
-      loadGuestData()
-      isLoading.value = false
-      return
+    // Step 1: Always load from localStorage first (unconditional)
+    loadGuestData()
+
+    // Step 2: If logged in, additionally load from Supabase and merge (deduplicate)
+    if (authStore.user) {
+      try {
+        // Load live sessions from Supabase
+        const { data: liveData, error: liveError } = await supabase
+          .from('live_sessions')
+          .select('*')
+          .eq('user_id', authStore.user.id)
+          .order('created_at', { ascending: false })
+
+        if (liveError) throw liveError
+
+        // Merge with localStorage data, deduplicate by id
+        const existingLiveIds = new Set(liveSessions.value.map(s => s.id))
+        const newLiveSessions = (liveData || []).filter(s => !existingLiveIds.has(s.id))
+        liveSessions.value = [...liveSessions.value, ...newLiveSessions]
+
+        // Load videos from Supabase
+        const { data: videoData, error: videoError } = await supabase
+          .from('videos')
+          .select('*')
+          .eq('user_id', authStore.user.id)
+          .order('created_at', { ascending: false })
+
+        if (videoError) throw videoError
+
+        // Merge with localStorage data, deduplicate by id
+        const existingVideoIds = new Set(videos.value.map(v => v.id))
+        const newVideos = (videoData || []).filter(v => !existingVideoIds.has(v.id))
+        videos.value = [...videos.value, ...newVideos]
+
+        // Load import logs from Supabase
+        const { data: logData, error: logError } = await supabase
+          .from('import_logs')
+          .select('*')
+          .eq('user_id', authStore.user.id)
+          .order('created_at', { ascending: false })
+          .limit(20)
+
+        if (logError) throw logError
+
+        // Merge import history, deduplicate by id
+        const supabaseLogs = (logData || []).map(log => ({
+          id: log.id,
+          type: log.import_type,
+          count: log.record_count,
+          timestamp: new Date(log.created_at).toLocaleString('zh-CN'),
+          fileName: log.file_name
+        }))
+        const existingLogIds = new Set(importHistory.value.map(h => h.id))
+        const newLogs = supabaseLogs.filter(l => !existingLogIds.has(l.id))
+        importHistory.value = [...importHistory.value, ...newLogs]
+      } catch (err) {
+        error.value = err.message
+        console.error('Failed to load data from Supabase:', err)
+      }
     }
 
-    try {
-      // Load live sessions
-      const { data: liveData, error: liveError } = await supabase
-        .from('live_sessions')
-        .select('*')
-        .eq('user_id', authStore.user.id)
-        .order('created_at', { ascending: false })
-
-      if (liveError) throw liveError
-      liveSessions.value = liveData || []
-
-      // Load videos
-      const { data: videoData, error: videoError } = await supabase
-        .from('videos')
-        .select('*')
-        .eq('user_id', authStore.user.id)
-        .order('created_at', { ascending: false })
-
-      if (videoError) throw videoError
-      videos.value = videoData || []
-
-      // Load import logs
-      const { data: logData, error: logError } = await supabase
-        .from('import_logs')
-        .select('*')
-        .eq('user_id', authStore.user.id)
-        .order('created_at', { ascending: false })
-        .limit(20)
-
-      if (logError) throw logError
-      importHistory.value = (logData || []).map(log => ({
-        id: log.id,
-        type: log.import_type,
-        count: log.record_count,
-        timestamp: new Date(log.created_at).toLocaleString('zh-CN'),
-        fileName: log.file_name
-      }))
-    } catch (err) {
-      error.value = err.message
-      console.error('Failed to load data:', err)
-    } finally {
-      isLoading.value = false
-    }
+    isLoading.value = false
   }
 
   async function setImportedData(data, type) {
     const authStore = useAuthStore()
-    if (!authStore.user) throw new Error('请先登录')
-
     isLoading.value = true
     error.value = null
     currentImportType.value = type
 
-    // Guest mode: save to localStorage only
-    if (isGuestMode()) {
-      saveGuestData(data, type)
-      isLoading.value = false
-      return
-    }
+    // Step 1: Always save to localStorage first (unconditional)
+    saveGuestData(data, type)
 
-    try {
-      // Transform data to match schema
-      const records = data.map(row => {
-        const base = {
+    // Step 2: If logged in, additionally save to Supabase
+    if (authStore.user) {
+      try {
+        // Transform data to match schema
+        const records = data.map(row => {
+          const base = {
+            user_id: authStore.user.id,
+            raw_data: row
+          }
+
+          if (type === 'live') {
+            return {
+              ...base,
+              live_date: row.直播日期 || row.date || null,
+              duration_minutes: parseInt(row.直播时长 || row.duration) || null,
+              avg_watch: parseInt(row.场均观看 || row.watchCount) || null,
+              gmv: parseFloat(row.直播GMV || row.gmv) || null,
+              orders: parseInt(row.成交订单数 || row.orders) || null,
+              new_fans: parseInt(row.新增粉丝 || row.newFans) || null,
+              interactions: parseInt(row.互动人数 || row.interactions) || null
+            }
+          } else {
+            return {
+              ...base,
+              title: row.视频标题 || row.title || null,
+              publish_time: row.发布时间 || row.publishTime || null,
+              play_count: parseInt(row.播放量 || row.playCount) || null,
+              like_count: parseInt(row.点赞数 || row.likeCount) || null,
+              comment_count: parseInt(row.评论数 || row.commentCount) || null,
+              share_count: parseInt(row.分享数 || row.shareCount) || null,
+              collect_count: parseInt(row.收藏数 || row.collectCount) || null,
+              completion_rate: parseFloat(row.完播率 || row.completionRate) || null
+            }
+          }
+        })
+
+        // Insert to Supabase
+        const table = type === 'live' ? 'live_sessions' : 'videos'
+        const { error: insertError } = await supabase.from(table).insert(records)
+
+        if (insertError) throw insertError
+
+        // Log import
+        const { error: logError } = await supabase.from('import_logs').insert({
           user_id: authStore.user.id,
-          raw_data: row
-        }
+          import_type: type,
+          record_count: data.length
+        })
 
-        if (type === 'live') {
-          return {
-            ...base,
-            live_date: row.直播日期 || row.date || null,
-            duration_minutes: parseInt(row.直播时长 || row.duration) || null,
-            avg_watch: parseInt(row.场均观看 || row.watchCount) || null,
-            gmv: parseFloat(row.直播GMV || row.gmv) || null,
-            orders: parseInt(row.成交订单数 || row.orders) || null,
-            new_fans: parseInt(row.新增粉丝 || row.newFans) || null,
-            interactions: parseInt(row.互动人数 || row.interactions) || null
-          }
-        } else {
-          return {
-            ...base,
-            title: row.视频标题 || row.title || null,
-            publish_time: row.发布时间 || row.publishTime || null,
-            play_count: parseInt(row.播放量 || row.playCount) || null,
-            like_count: parseInt(row.点赞数 || row.likeCount) || null,
-            comment_count: parseInt(row.评论数 || row.commentCount) || null,
-            share_count: parseInt(row.分享数 || row.shareCount) || null,
-            collect_count: parseInt(row.收藏数 || row.collectCount) || null,
-            completion_rate: parseFloat(row.完播率 || row.completionRate) || null
-          }
-        }
-      })
+        if (logError) console.warn('Failed to log import:', logError)
 
-      // Insert to Supabase
-      const table = type === 'live' ? 'live_sessions' : 'videos'
-      const { error: insertError } = await supabase.from(table).insert(records)
-
-      if (insertError) throw insertError
-
-      // Log import
-      const { error: logError } = await supabase.from('import_logs').insert({
-        user_id: authStore.user.id,
-        import_type: type,
-        record_count: data.length
-      })
-
-      if (logError) console.warn('Failed to log import:', logError)
-
-      // Reload data
-      await loadData()
-    } catch (err) {
-      error.value = err.message
-      throw err
-    } finally {
-      isLoading.value = false
+        // Reload data to sync everything
+        await loadData()
+      } catch (err) {
+        error.value = err.message
+        console.error('Failed to save data to Supabase:', err)
+      }
     }
+
+    isLoading.value = false
   }
 
   async function clearData() {
