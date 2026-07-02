@@ -330,6 +330,30 @@ export const useDataStore = defineStore('data', () => {
     }
   }
 
+    // ========== Remove single video ==========
+  async function removeVideo(id) {
+    const authStore = useAuthStore()
+    const existing = JSON.parse(localStorage.getItem('guest_videos') || '[]')
+    const filtered = existing.filter(v => v.id !== id)
+    localStorage.setItem('guest_videos', JSON.stringify(filtered))
+    videos.value = filtered
+    if (authStore.user) {
+      try { await supabase.from('videos').delete().eq('id', id).eq('user_id', authStore.user.id) } catch (e) {}
+    }
+  }
+
+  // ========== Remove single live session ==========
+  async function removeLiveSession(id) {
+    const authStore = useAuthStore()
+    const existing = JSON.parse(localStorage.getItem('guest_live_sessions') || '[]')
+    const filtered = existing.filter(s => s.id !== id)
+    localStorage.setItem('guest_live_sessions', JSON.stringify(filtered))
+    liveSessions.value = filtered
+    if (authStore.user) {
+      try { await supabase.from('live_sessions').delete().eq('id', id).eq('user_id', authStore.user.id) } catch (e) {}
+    }
+  }
+
   return {
     liveSessions,
     videos,
@@ -342,6 +366,8 @@ export const useDataStore = defineStore('data', () => {
     loadData,
     setImportedData,
     clearData,
-    removeImportHistoryItem
+    removeImportHistoryItem,
+    removeVideo,
+    removeLiveSession
   }
 })

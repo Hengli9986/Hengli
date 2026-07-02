@@ -115,6 +115,7 @@
                 <th class="text-left py-2 px-3 font-medium text-gray-600">订单</th>
                 <th class="text-left py-2 px-3 font-medium text-gray-600">新增粉丝</th>
                 <th class="text-left py-2 px-3 font-medium text-gray-600">互动</th>
+                <th class="text-left py-2 px-3 font-medium text-gray-600">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -122,7 +123,7 @@
                 v-for="session in sortedSessions" 
                 :key="session._id"
                 class="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
-                @click="goToDetail(session)"
+                @click.stop="goToDetail(session)"
               >
                 <td class="py-2 px-3">{{ session.直播日期 || session.date || '-' }}</td>
                 <td class="py-2 px-3">{{ session.直播时长 || session.duration || '-' }}</td>
@@ -131,6 +132,11 @@
                 <td class="py-2 px-3">{{ formatNumber(session.成交订单数 || session.orders) }}</td>
                 <td class="py-2 px-3">{{ formatNumber(session.新增粉丝 || session.newFans) }}</td>
                 <td class="py-2 px-3">{{ formatNumber(session.互动人数 || session.interactions) }}</td>
+                <td class="py-2 px-3 text-right">
+                 <button @click.stop="deleteLiveSession(session.id || session._id)" class="text-gray-400 hover:text-red-500 transition-colors" title="删除">
+                  🗑️
+                 </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -240,15 +246,8 @@ import { exportLiveReportPDF } from '../lib/export'
 use([CanvasRenderer, LineChart, BarChart, ScatterChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
 const router = useRouter()
-const dataStore = {
-  isLoading: false,
-  importHistory: [],
-  liveSessions: [],
-  videos: [],
-  loadData: () => {},
-  setImportedData: async () => {},
-  removeImportHistoryItem: () => {}
-}
+import { useDataStore } from '../stores/data'
+const dataStore = useDataStore()
 
 const showAutoImport = ref(false)
 
@@ -357,6 +356,11 @@ function exportPDF() {
     return
   }
   exportLiveReportPDF(dataStore.liveSessions, dataStore.liveStats)
+}
+
+async function deleteLiveSession(id) {
+  if (!confirm('确定要删除这条直播数据吗？')) return
+  await dataStore.removeLiveSession(id)
 }
 
 // ========== Chart Options ==========

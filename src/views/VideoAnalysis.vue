@@ -139,6 +139,7 @@
                 <th class="text-right py-2 px-3 font-medium text-gray-600">评论</th>
                 <th class="text-right py-2 px-3 font-medium text-gray-600">分享</th>
                 <th class="text-right py-2 px-3 font-medium text-gray-600">收藏</th>
+                <th class="text-right py-2 px-3 font-medium text-gray-600">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -154,6 +155,11 @@
                 <td class="py-2 px-3 text-right">{{ formatNumber(video.comment_count) }}</td>
                 <td class="py-2 px-3 text-right">{{ formatNumber(video.share_count) }}</td>
                 <td class="py-2 px-3 text-right">{{ formatNumber(video.collect_count) }}</td>
+                <td class="py-2 px-3 text-right">
+                  <button @click.stop="deleteVideo(video.id)" class="text-gray-400 hover:text-red-500 transition-colors" title="删除">
+                    🗑️
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -261,15 +267,8 @@ import { exportVideoReportPDF } from '../lib/export'
 
 use([CanvasRenderer, LineChart, BarChart, PieChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
-const dataStore = {
-  isLoading: false,
-  importHistory: [],
-  liveSessions: [],
-  videos: [],
-  loadData: () => {},
-  setImportedData: async () => {},
-  removeImportHistoryItem: () => {}
-}
+import { useDataStore } from '../stores/data'
+const dataStore = useDataStore()
 
 const showAutoImport = ref(false)
 
@@ -360,6 +359,11 @@ function exportPDF() {
     return
   }
   exportVideoReportPDF(dataStore.videos, dataStore.videoStats)
+}
+
+async function deleteVideo(id) {
+  if (!confirm('确定要删除这条视频数据吗？')) return
+  await dataStore.removeVideo(id)
 }
 
 // ========== Chart Options ==========
