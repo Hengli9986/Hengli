@@ -51,13 +51,13 @@
       </button>
     </div>
 
-    <!-- Bookmarklet Auto-Import Banner (shown when data arrives from URL) -->
+    <!-- Bookmarklet Auto-Import Banner -->
     <div v-if="bookmarkletData" class="card mb-6 p-4 bg-gradient-to-r from-[#E85D4E]/10 to-[#FF8A7A]/5 border border-[#E85D4E]/20">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E85D4E] to-[#FF8A7A] flex items-center justify-center text-white text-lg">🎯</div>
         <div class="flex-1">
           <h3 class="font-bold text-[#E85D4E]">自动化数据已送达</h3>
-          <p class="text-sm text-gray-600">从抖音后台提取到 <strong>{{ bookmarkletData.data?.length || 0 }}</strong> 分钟的趋势数据，请确认导入</p>
+          <p class="text-sm text-gray-600">从后台提取到 <strong>{{ bookmarkletData.data?.length || bookmarkletData.videos?.length || 0 }}</strong> 条数据，请确认导入</p>
         </div>
         <button @click="confirmBookmarkletImport" class="btn-primary text-sm">
           ✅ 确认导入
@@ -69,7 +69,7 @@
     <div v-if="importType" class="card mb-6 p-2">
       <div class="flex space-x-1 overflow-x-auto">
         <button
-          v-for="tab in filteredSourceTabs"
+          v-for="tab in sourceTabs"
           :key="tab.key"
           @click="activeSource = tab.key"
           class="px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors"
@@ -124,7 +124,7 @@
       <div class="text-center">
         <div class="text-5xl mb-4">⚡</div>
         <h3 class="font-bold text-lg mb-2">自动化导入（Bookmarklet）</h3>
-        <p class="text-gray-500 mb-6">通过浏览器书签工具，一键从抖音后台提取数据</p>
+        <p class="text-gray-500 mb-6">通过浏览器书签工具，一键从后台提取数据</p>
 
         <!-- PC Only Warning -->
         <div class="flex items-start gap-3 p-3 bg-amber-50 rounded-lg mb-6 text-left max-w-md mx-auto">
@@ -143,8 +143,8 @@
             class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#E85D4E] to-[#D45040] text-white font-bold rounded-xl shadow-lg cursor-move hover:shadow-xl transition-all"
             onclick="alert('请将此按钮拖拽到书签栏，不要点击！'); return false;"
           >
-            <span>🎯</span>
-            <span>提取到数据站</span>
+            <span>{{ importType === 'live' ? '🎯' : '🎬' }}</span>
+            <span>{{ importType === 'live' ? '提取到数据站' : '提取视频数据' }}</span>
           </a>
           <p class="text-xs text-[#E85D4E] mt-3 font-medium">← 按住鼠标左键，拖到浏览器顶部的书签栏</p>
           <p class="text-xs text-gray-400 mt-1">看不到书签栏？按 Ctrl + Shift + B 显示</p>
@@ -156,17 +156,17 @@
 
           <div class="flex gap-3">
             <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#E85D4E] to-[#FF8A7A] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">1</div>
-            <p class="text-sm text-gray-600">打开 <a href="https://fxg.jinritemai.com" target="_blank" class="text-[#E85D4E] font-medium underline">抖音创作者服务中心</a> 并登录</p>
+            <p class="text-sm text-gray-600">打开 <a href="https://fxg.jinritemai.com" target="_blank" class="text-[#E85D4E] font-medium underline">创作者服务中心</a> 并登录</p>
           </div>
 
           <div class="flex gap-3">
             <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#E85D4E] to-[#FF8A7A] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">2</div>
-            <p class="text-sm text-gray-600">进入「直播数据」→「直播复盘」页面</p>
+            <p class="text-sm text-gray-600">{{ importType === 'live' ? '进入「直播数据」→「直播复盘」页面' : '进入「内容分析」→「视频数据」页面' }}</p>
           </div>
 
           <div class="flex gap-3">
             <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#E85D4E] to-[#FF8A7A] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">3</div>
-            <p class="text-sm text-gray-600">点击书签栏上的 <span class="font-bold text-[#E85D4E]">🎯 提取到数据站</span></p>
+            <p class="text-sm text-gray-600">点击书签栏上的 <span class="font-bold text-[#E85D4E]">{{ importType === 'live' ? '🎯 提取到数据站' : '🎬 提取视频数据' }}</span></p>
           </div>
 
           <div class="flex gap-3">
@@ -183,7 +183,7 @@
         <!-- Tip -->
         <div class="mt-6 p-4 bg-gray-50 rounded-lg text-left max-w-md mx-auto">
           <p class="text-xs text-gray-500">
-            <span class="font-bold">💡 提示：</span>此功能通过浏览器书签工具读取抖音后台页面数据，数据仅保存在当前浏览器中。
+            <span class="font-bold">💡 提示：</span>此功能通过浏览器书签工具读取页面数据，数据仅保存在当前浏览器中。
           </p>
         </div>
       </div>
@@ -202,7 +202,7 @@
       >
         <div class="text-center">
           <div class="text-5xl mb-4">📸</div>
-          <h3 class="font-bold text-lg mb-2">上传抖音后台截图</h3>
+          <h3 class="font-bold text-lg mb-2">上传后台截图</h3>
           <p class="text-gray-500 mb-4">支持 PNG / JPG 格式，截图需包含表格数据</p>
           <input
             ref="imageInput"
@@ -429,14 +429,6 @@ const sourceTabs = [
   { key: 'manual', label: '✏️ 手动录入' }
 ]
 
-// Show bookmarklet tab only for live data
-const filteredSourceTabs = computed(() => {
-  if (importType.value === 'video') {
-    return sourceTabs.filter(t => t.key !== 'bookmarklet')
-  }
-  return sourceTabs
-})
-
 const manualForm = ref({})
 const batchText = ref('')
 const ocrImage = ref('')
@@ -453,14 +445,14 @@ function checkBookmarkletData() {
   const source = route.query.source
   const data = route.query.data
   
-  if (source === 'bookmarklet' && data) {
+  if ((source === 'bookmarklet' || source === 'bookmarklet_video') && data) {
     try {
       const decoded = JSON.parse(decodeURIComponent(atob(data)))
-      if (decoded.data && decoded.data.length > 0) {
-        bookmarkletData.value = decoded
-        importType.value = 'live'
-        activeSource.value = 'bookmarklet'
-        // Parse the minute data into preview
+      bookmarkletData.value = decoded
+      importType.value = source === 'bookmarklet_video' ? 'video' : 'live'
+      activeSource.value = 'bookmarklet'
+      
+      if (source === 'bookmarklet' && decoded.data) {
         const rows = decoded.data.map((d, i) => ({
           '分钟': d.minute,
           '时间': formatMinuteTime(d.minute),
@@ -470,6 +462,8 @@ function checkBookmarkletData() {
           '净变化': d.enter - d.leave
         }))
         setParsedData(rows)
+      } else if (source === 'bookmarklet_video' && decoded.videos) {
+        setParsedData(decoded.videos)
       }
     } catch (err) {
       console.error('Failed to parse bookmarklet data:', err)
@@ -486,7 +480,6 @@ function formatMinuteTime(minute) {
 function confirmBookmarkletImport() {
   if (!bookmarkletData.value) return
   confirmImport()
-  // Clean URL
   router.replace({ path: '/import', query: {} })
 }
 
@@ -494,10 +487,6 @@ function setImportType(type) {
   importType.value = type
   clearPreview()
   resetManualForm()
-  // Reset active source if bookmarklet not available
-  if (type === 'video' && activeSource.value === 'bookmarklet') {
-    activeSource.value = 'file'
-  }
 }
 
 const manualFields = computed(() => {
@@ -560,7 +549,7 @@ const bookmarkletCode = ref(`javascript:(function(){
     p.style.cssText='position:fixed;top:20px;right:20px;width:360px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:16px;padding:20px;z-index:999999;color:#fff;font-family:system-ui,sans-serif;box-shadow:0 20px 60px rgba(0,0,0,0.4);';
     var hasData=data&&data.length>0;
     var netChange=hasData?data.reduce(function(s,d){return s+(d.enter-d.leave)},0):0;
-    p.innerHTML='<style>@keyframes dsIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}.ds-h{display:flex;align-items:center;gap:10px;margin-bottom:14px}.ds-lg{width:36px;height:36px;background:linear-gradient(135deg,#E85D4E,#FF8A7A);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}.ds-t{font-size:15px;font-weight:700;margin:0}.ds-s{font-size:11px;color:rgba(255,255,255,0.5);margin:0}.ds-st{display:flex;align-items:center;gap:8px;margin:10px 0;padding:10px;border-radius:10px;font-size:12px;background:'+(hasData?'rgba(0,201,167,0.15);color:#00C9A7':'rgba(255,184,0,0.15);color:#FFB800')+';}.ds-b{width:100%;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:6px}.ds-b1{background:linear-gradient(135deg,#E85D4E,#D45040);color:#fff}.ds-b1:hover{transform:translateY(-1px)}.ds-b2{background:rgba(255,255,255,0.1);color:#fff;margin-top:4px}.ds-x{position:absolute;top:10px;right:14px;background:none;border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer}</style><button class=ds-x onclick="document.getElementById(\'ds-panel\').remove()">✕</button><div class=ds-h><div class=ds-lg>🎯</div><div><div class=ds-t>数据站</div><div class=ds-s>数据提取工具</div></div></div><div class=ds-st>'+(hasData?'✓ 提取到 '+data.length+' 分钟数据，净变化 '+netChange+' 人':'⏳ 未检测到趋势图表数据')+'</div>'+(hasData?'<button class="ds-b ds-b1" id=ds-send>📤 发送到 060224.top</button>':'<div style="font-size:11px;color:rgba(255,255,255,0.5);margin:8px 0">提示：请打开抖音直播复盘页面，确保趋势明细图表已加载</div>')+'<button class="ds-b ds-b2" onclick="document.getElementById(\'ds-panel\').remove()\">关闭</button>';
+    p.innerHTML='<style>@keyframes dsIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}.ds-h{display:flex;align-items:center;gap:10px;margin-bottom:14px}.ds-lg{width:36px;height:36px;background:linear-gradient(135deg,#E85D4E,#FF8A7A);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}.ds-t{font-size:15px;font-weight:700;margin:0}.ds-s{font-size:11px;color:rgba(255,255,255,0.5);margin:0}.ds-st{display:flex;align-items:center;gap:8px;margin:10px 0;padding:10px;border-radius:10px;font-size:12px;background:'+(hasData?'rgba(0,201,167,0.15);color:#00C9A7':'rgba(255,184,0,0.15);color:#FFB800')+';}.ds-b{width:100%;padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:6px}.ds-b1{background:linear-gradient(135deg,#E85D4E,#D45040);color:#fff}.ds-b1:hover{transform:translateY(-1px)}.ds-b2{background:rgba(255,255,255,0.1);color:#fff;margin-top:4px}.ds-x{position:absolute;top:10px;right:14px;background:none;border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer}</style><button class=ds-x onclick="document.getElementById(\'ds-panel\').remove()">✕</button><div class=ds-h><div class=ds-lg>🎯</div><div><div class=ds-t>数据站</div><div class=ds-s>数据提取工具</div></div></div><div class=ds-st>'+(hasData?'✓ 提取到 '+data.length+' 分钟数据，净变化 '+netChange+' 人':'⏳ 未检测到趋势图表数据')+'</div>'+(hasData?'<button class="ds-b ds-b1" id=ds-send>📤 发送到 060224.top</button>':'<div style="font-size:11px;color:rgba(255,255,255,0.5);margin:8px 0">提示：请打开直播复盘页面，确保趋势明细图表已加载</div>')+'<button class="ds-b ds-b2" onclick="document.getElementById(\'ds-panel\').remove()\">关闭</button>';
     document.body.appendChild(p);
     if(hasData){
       document.getElementById('ds-send').onclick=function(){
@@ -770,7 +759,7 @@ function parseBatchText() {
   const rows = lines.map(line => {
     const cols = line.split(/\t|,/)
     const row = {}
-    headers.forEach((h, i) => {
+  headers.forEach((h, i) => {
       row[h] = cols[i] ? cols[i].trim() : ''
     })
     return row
