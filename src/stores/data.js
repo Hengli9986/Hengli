@@ -66,9 +66,9 @@ export const useDataStore = defineStore('data', () => {
       engagementRate: engagement,
       topVideos: topVideos.map(v => ({
         title: v.title || '未命名',
-        playCount: v.play_count || 0,
-        likeCount: v.like_count || 0,
-        publishTime: v.publish_time || ''
+        play_count: v.play_count || 0,
+        like_count: v.like_count || 0,
+        publish_time: v.publish_time || ''
       }))
     }
   })
@@ -78,22 +78,31 @@ export const useDataStore = defineStore('data', () => {
     isLoading.value = true
     error.value = null
 
+    const authStore = useAuthStore()
+    const isGuest = isGuestMode()
+    const isLoggedIn = !!(authStore.user && authStore.user.id)
+
+    console.log('[dataStore] loadData start — guestMode:', isGuest, 'loggedIn:', isLoggedIn, 'videos:', videos.value.length)
+
     // Guest mode: load from localStorage (does NOT require login)
-    if (isGuestMode()) {
+    if (isGuest) {
+      console.log('[dataStore] Loading guest data from localStorage...')
       loadGuestData()
+      console.log('[dataStore] Guest data loaded — videos:', videos.value.length, 'live:', liveSessions.value.length)
       isLoading.value = false
       return
     }
 
     // Not guest mode and not logged in: nothing to load
-    const authStore = useAuthStore()
-    if (!authStore.user) {
+    if (!isLoggedIn) {
+      console.log('[dataStore] Not guest and not logged in, skipping load')
       isLoading.value = false
       return
     }
 
     // Supabase mode: load from cloud
     try {
+      console.log('[dataStore] Loading from Supabase for user:', authStore.user.id)
       // Load live sessions
       const { data: liveData, error: liveError } = await supabase
         .from('live_sessions')
@@ -130,6 +139,8 @@ export const useDataStore = defineStore('data', () => {
         timestamp: new Date(log.created_at).toLocaleString('zh-CN'),
         fileName: log.file_name
       }))
+
+      console.log('[dataStore] Supabase data loaded — videos:', videos.value.length, 'live:', liveSessions.value.length)
     } catch (err) {
       error.value = err.message
       console.error('Failed to load data:', err)
@@ -144,20 +155,28 @@ export const useDataStore = defineStore('data', () => {
     currentImportType.value = type
 
     const authStore = useAuthStore()
+    const isGuest = isGuestMode()
+    const isLoggedIn = !!(authStore.user && authStore.user.id)
+
+    console.log('[dataStore] setImportedData — type:', type, 'count:', data.length, 'guestMode:', isGuest, 'loggedIn:', isLoggedIn)
 
     // Guest mode (or not logged in): save to localStorage, no login required
-    if (isGuestMode() || !authStore.user) {
+    if (isGuest || !isLoggedIn) {
       // Auto-enable guest mode if user is not logged in
-      if (!authStore.user && !isGuestMode()) {
+      if (!isLoggedIn && !isGuest) {
         localStorage.setItem('guest_mode', 'true')
+        console.log('[dataStore] Auto-enabled guest mode')
       }
+      console.log('[dataStore] Saving to localStorage (guest mode)...')
       saveGuestData(data, type)
+      console.log('[dataStore] Saved — videos in store:', videos.value.length, 'live in store:', liveSessions.value.length)
       isLoading.value = false
       return
     }
 
     // Supabase mode: save to cloud (user is logged in and not guest)
     try {
+      console.log('[dataStore] Saving to Supabase...')
       // Transform data to match schema
       const records = data.map(row => {
         const base = {
@@ -210,6 +229,7 @@ export const useDataStore = defineStore('data', () => {
       await loadData()
     } catch (err) {
       error.value = err.message
+      console.error('[dataStore] Supabase save failed:', err)
       throw err
     } finally {
       isLoading.value = false
@@ -229,7 +249,7 @@ export const useDataStore = defineStore('data', () => {
     }
 
     const authStore = useAuthStore()
-    if (!authStore.user) return
+    if (!authStore.user || !authStore.user.id) return
 
     isLoading.value = true
     try {
