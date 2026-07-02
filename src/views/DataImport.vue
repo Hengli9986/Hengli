@@ -69,7 +69,7 @@
     <div v-if="importType" class="card mb-6 p-2">
       <div class="flex space-x-1 overflow-x-auto">
         <button
-          v-for="tab in filteredSourceTabs"
+          v-for="tab in sourceTabs"
           :key="tab.key"
           @click="activeSource = tab.key"
           class="px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors"
@@ -399,18 +399,13 @@ import * as XLSX from 'xlsx'
 import Tesseract from 'tesseract.js'
 import { exportAllDataExcel } from '../lib/export'
 import { parseOcrText } from '../lib/ocrParser'
+import { useDataStore } from '../stores/data'
 
 const route = useRoute()
 const router = useRouter()
-const dataStore = {
-  isLoading: false,
-  importHistory: [],
-  liveSessions: [],
-  videos: [],
-  loadData: () => {},
-  setImportedData: async () => {},
-  removeImportHistoryItem: () => {}
-}
+
+// 真实 Pinia store
+const dataStore = useDataStore()
 
 const importType = ref('')
 const activeSource = ref('file')
@@ -434,14 +429,6 @@ const sourceTabs = [
   { key: 'ocr', label: '📸 截图 OCR' },
   { key: 'manual', label: '✏️ 手动录入' }
 ]
-
-// Show bookmarklet tab only for live data
-const filteredSourceTabs = computed(() => {
-  if (importType.value === 'video') {
-    return sourceTabs.filter(t => t.key !== 'bookmarklet')
-  }
-  return sourceTabs
-})
 
 const manualForm = ref({})
 const batchText = ref('')
@@ -496,14 +483,11 @@ function confirmBookmarkletImport() {
   router.replace({ path: '/import', query: {} })
 }
 
+// 不再重置 activeSource
 function setImportType(type) {
   importType.value = type
   clearPreview()
   resetManualForm()
-  // Reset active source if bookmarklet not available
-  if (type === 'video' && activeSource.value === 'bookmarklet') {
-    activeSource.value = 'file'
-  }
 }
 
 const manualFields = computed(() => {
@@ -825,7 +809,7 @@ function clearPreview() {
   bookmarkletData.value = null
 }
 
-// ========== Confirm Import ==========
+// 导入成功后 2 秒自动跳转
 async function confirmImport() {
   if (parsedData.value.length === 0) return
   
@@ -839,9 +823,11 @@ async function confirmImport() {
     
     clearPreview()
     
+    // 2秒后自动跳转到对应分析页面
     setTimeout(() => {
       showSuccess.value = false
-    }, 3000)
+      router.push(importType.value === 'live' ? '/live' : '/video')
+    }, 2000)
   } catch (err) {
     error.value = err.message || '导入失败'
   } finally {
