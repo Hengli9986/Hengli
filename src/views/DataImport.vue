@@ -420,8 +420,7 @@ const previewHeaders = ref([])
 const showSuccess = ref(false)
 const successCount = ref(0)
 
-// Bookmarklet
-const bookmarkletData = ref(null)
+// All source tabs for both live and video (symmetric)
 const sourceTabs = [
   { key: 'file', label: '📁 文件导入' },
   { key: 'bookmarklet', label: '⚡ 自动化导入' },
@@ -759,7 +758,7 @@ function parseBatchText() {
   const rows = lines.map(line => {
     const cols = line.split(/\t|,/)
     const row = {}
-  headers.forEach((h, i) => {
+    headers.forEach((h, i) => {
       row[h] = cols[i] ? cols[i].trim() : ''
     })
     return row
